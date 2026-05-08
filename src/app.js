@@ -475,6 +475,7 @@ function advanceCourse(buildingId, itemId) {
 
 // ========== LOGOUT ==========
 function handleLogout() {
+    const lastUser = state.username;
     state.username = '';
     state.isNewUser = false;
     state.onboardingStep = 1;
@@ -483,9 +484,8 @@ function handleLogout() {
     state.progress = {};
     state.courseData = {};
     localStorage.removeItem('langtown_user');
-    // Keep last entered username for convenience
-    localStorage.setItem('langtown_last_user', state.username);
-    $('#username-input').value = '';
+    localStorage.setItem('langtown_last_user', lastUser);
+    $('#username-input').value = lastUser;
     showScreen('login');
 }
 
