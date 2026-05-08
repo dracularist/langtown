@@ -68,6 +68,134 @@ body {
     z-index: 10;
 }
 
+/* ========== LOGIN SCREEN ========== */
+#welcome-screen {
+    background: linear-gradient(180deg, #e0f7ff 0%, #f0faf0 40%, #fff 100%);
+}
+
+.login-box {
+    text-align: center;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 24px;
+}
+
+.login-input-row {
+    margin-top: 16px;
+}
+
+.login-input-row input {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 18px;
+    font-family: var(--font);
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+.login-input-row input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-light);
+}
+
+.login-input-row input::placeholder {
+    color: var(--gray-400);
+    font-weight: 600;
+}
+
+.login-error {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red);
+    min-height: 20px;
+}
+
+.login-error.visible {
+    display: block;
+}
+
+.login-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-500);
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== GREETING ========== */
+.welcome-user {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gray-500);
+    text-align: center;
+    margin-top: 16px;
+}
+
+.welcome-user .greeting {
+    color: var(--gray-400);
+}
+
+.welcome-user strong {
+    color: var(--gray-900);
+}
+
+/* ========== TOWN HEADER WITH USER BADGE ========== */
+.town-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.town-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.8);
+    padding: 4px 10px 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gray-700);
+}
+
+.btn-logout {
+    border: none;
+    background: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.btn-logout:active {
+    background: var(--gray-200);
+}
+
 /* ========== WELCOME SCREEN ========== */
 #welcome-screen {
     background: linear-gradient(180deg, #e0f7ff 0%, #f0faf0 40%, #fff 100%);

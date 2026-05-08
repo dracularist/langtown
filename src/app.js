@@ -1,3 +1,8 @@
+// ========== SUPABASE SETUP ==========
+const SUPABASE_URL = 'https://edjoserjwhffnkdayzda.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkam9zZXJqd2hmZm5rZGF5emRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMjc3MjUsImV4cCI6MjA5MzgwMzcyNX0.m6qU3uIbV_LPsPUp4dI5flejCBPD1Dx4S4Bn51wYCk8';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // ========== DATA ==========
 
 const BUILDINGS = [
@@ -11,7 +16,7 @@ const BUILDINGS = [
     { id: 'office', name: 'Office', emoji: '🏢', keywords: 'Career, workplace', level: 'B1-B2' },
 ];
 
-const COURSES = {
+const DEFAULT_COURSES = {
     neighbourhood: [
         { unit: 'Unit 1 — Getting Settled', items: [
             { id: 'n1', title: 'Introducing yourself', desc: 'Hi, I\'m new here!', emoji: '👋', status: 'current' },
@@ -110,11 +115,15 @@ const COURSES = {
 
 // ========== STATE ==========
 let state = {
-    screen: 'welcome',
+    screen: 'login',
+    username: '',
+    isNewUser: false,
     onboardingStep: 1,
     destination: null,
     selectedInterests: [],
     currentBuilding: null,
+    progress: {},
+    courseData: {},
 };
 
 // ========== DOM REFS ==========
@@ -128,11 +137,162 @@ function showScreen(name) {
     state.screen = name;
 }
 
+// ========== SUPABASE HELPERS ==========
+async function checkUser(username) {
+    const { data, error } = await supabase
+        .from('users')
+        .select('username, progress')
+        .eq('username', username.toLowerCase())
+        .single();
+
+    if (error && error.code !== 'PGRST116') return { found: false, error };
+    if (data) return { found: true, progress: data.progress, username: data.username };
+    return { found: false };
+}
+
+async function saveUser(username, progress) {
+    const usernameLower = username.toLowerCase().trim();
+    const now = new Date().toISOString();
+    const { error } = await supabase
+        .from('users')
+        .upsert({
+            username: usernameLower,
+            progress: progress,
+            updated_at: now,
+        }, { onConflict: 'username' });
+
+    if (error) {
+        console.error('Save error:', error);
+        return false;
+    }
+    return true;
+}
+
+async function loadUser(username) {
+    const result = await checkUser(username);
+    if (result.found) {
+        state.username = result.username;
+        state.progress = result.progress;
+        state.courseData = mergeProgress(DEFAULT_COURSES, result.progress);
+        localStorage.setItem('langtown_user', result.username);
+        return { isNew: false };
+    }
+    return { isNew: true };
+}
+
+function mergeProgress(defaultCourses, progress) {
+    const courses = JSON.parse(JSON.stringify(defaultCourses));
+    for (const [buildingId, items] of Object.entries(progress)) {
+        if (courses[buildingId]) {
+            const itemMap = {};
+            courses[buildingId].forEach(unit => {
+                unit.items.forEach(item => {
+                    itemMap[item.id] = item;
+                });
+            });
+            for (const [itemId, newStatus] of Object.entries(items)) {
+                if (itemMap[itemId]) {
+                    itemMap[itemId].status = newStatus;
+                }
+            }
+        }
+    }
+    return courses;
+}
+
+function extractProgress(courseData) {
+    const progress = {};
+    for (const [buildingId, units] of Object.entries(courseData)) {
+        const buildingProgress = {};
+        units.forEach(unit => {
+            unit.items.forEach(item => {
+                if (item.status !== 'locked') {
+                    buildingProgress[item.id] = item.status;
+                }
+            });
+        });
+        if (Object.keys(buildingProgress).length > 0) {
+            progress[buildingId] = buildingProgress;
+        }
+    }
+    return progress;
+}
+
+// ========== LOGIN ==========
+async function handleLogin() {
+    const input = $('#username-input');
+    const username = input.value.trim();
+    if (!username) {
+        showLoginError('Please enter a name');
+        return;
+    }
+
+    showLoginLoading(true);
+    hideLoginError();
+
+    try {
+        const result = await loadUser(username);
+
+        if (result.isNew) {
+            state.isNewUser = true;
+            state.username = username.toLowerCase();
+            state.courseData = JSON.parse(JSON.stringify(DEFAULT_COURSES));
+            showScreen('welcome');
+            renderOnboardingStep();
+        } else {
+            state.isNewUser = false;
+            const hasInterests = state.progress._interests && state.progress._interests.length > 0;
+            if (!hasInterests) {
+                showScreen('welcome');
+                renderOnboardingStep();
+            } else {
+                state.selectedInterests = state.progress._interests;
+                renderBuildings();
+                showScreen('town');
+            }
+        }
+    } catch (err) {
+        showLoginError('Something went wrong. Please try again.');
+        console.error(err);
+    } finally {
+        showLoginLoading(false);
+    }
+}
+
+function showLoginError(msg) {
+    const el = $('#login-error');
+    el.textContent = msg;
+    el.classList.add('visible');
+    el.classList.remove('hidden');
+}
+
+function hideLoginError() {
+    $('#login-error').classList.add('hidden');
+    $('#login-error').classList.remove('visible');
+}
+
+function showLoginLoading(show) {
+    const el = $('#login-loading');
+    const btn = $('#btn-login');
+    if (show) {
+        el.classList.remove('hidden');
+        btn.disabled = true;
+    } else {
+        el.classList.add('hidden');
+        btn.disabled = false;
+    }
+}
+
 // ========== ONBOARDING ==========
 function renderOnboardingStep() {
     const step1 = $('#onboarding-step-1');
     const step2 = $('#onboarding-step-2');
     const btnNext = $('#btn-next');
+
+    // Show greeting
+    if (state.username) {
+        $('#greeting-name').textContent = state.username;
+    }
 
     if (state.onboardingStep === 1) {
         step1.classList.remove('hidden');
@@ -213,9 +373,8 @@ function openBuilding(id) {
 // ========== BUILDING DETAIL ==========
 function renderBuildingDetail(id) {
     const building = BUILDINGS.find(b => b.id === id);
-    const courses = COURSES[id] || [];
+    const courses = state.courseData[id] || [];
 
-    const header = $('#building-header');
     const bgColors = {
         neighbourhood: '#FFE0B2', cafe: '#D7CCC8', accommodation: '#B3E5FC',
         station: '#C8E6C9', campus: '#FFF9C4', hospital: '#F8BBD0',
@@ -229,7 +388,7 @@ function renderBuildingDetail(id) {
     const list = $('#course-list');
     list.innerHTML = '';
 
-    courses.forEach(unit => {
+    courses.forEach((unit, ui) => {
         const unitEl = document.createElement('div');
         unitEl.className = 'course-unit';
 
@@ -246,22 +405,22 @@ function renderBuildingDetail(id) {
 
         list.appendChild(unitEl);
     });
+
+    // Attach click handlers to course items
+    $$('.course-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const itemId = el.dataset.id;
+            advanceCourse(id, itemId);
+        });
+    });
 }
 
 function renderCourseItem(item, index) {
-    const nodeColors = {
-        completed: 'var(--green)',
-        current: 'var(--blue)',
-        locked: 'var(--gray-200)',
-    };
-
     const statusLabels = {
         current: '<span class="course-badge new">New</span>',
         completed: '<span class="course-badge review">Done</span>',
         locked: '<span class="course-badge locked-badge">Locked</span>',
     };
-
-    const connector = index < 99 ? '<div class="course-connector"></div>' : '';
 
     return `
         <div class="course-item" data-id="${item.id}">
@@ -272,12 +431,77 @@ function renderCourseItem(item, index) {
             </div>
             ${statusLabels[item.status]}
         </div>
-        ${connector}
     `;
+}
+
+function advanceCourse(buildingId, itemId) {
+    const courses = state.courseData[buildingId];
+    if (!courses) return;
+
+    // Find all items in order
+    const allItems = [];
+    courses.forEach(unit => {
+        unit.items.forEach(item => {
+            allItems.push(item);
+        });
+    });
+
+    const targetIdx = allItems.findIndex(i => i.id === itemId);
+    if (targetIdx === -1) return;
+
+    const target = allItems[targetIdx];
+    if (target.status === 'locked') return;
+
+    // If current, mark as completed and unlock next
+    if (target.status === 'current') {
+        target.status = 'completed';
+        // Unlock the next locked item
+        for (let i = targetIdx + 1; i < allItems.length; i++) {
+            if (allItems[i].status === 'locked') {
+                allItems[i].status = 'current';
+                break;
+            }
+        }
+
+        // Save to cloud
+        const progress = extractProgress(state.courseData);
+        progress._interests = state.selectedInterests;
+        saveUser(state.username, progress);
+    }
+
+    // Re-render
+    renderBuildingDetail(buildingId);
+}
+
+// ========== LOGOUT ==========
+function handleLogout() {
+    state.username = '';
+    state.isNewUser = false;
+    state.onboardingStep = 1;
+    state.destination = null;
+    state.selectedInterests = [];
+    state.progress = {};
+    state.courseData = {};
+    localStorage.removeItem('langtown_user');
+    $('#username-input').value = '';
+    showScreen('login');
 }
 
 // ========== EVENT LISTENERS ==========
 function init() {
+    // Login
+    $('#btn-login').addEventListener('click', handleLogin);
+    $('#username-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+
+    // Auto-login if cached
+    const cachedUser = localStorage.getItem('langtown_user');
+    if (cachedUser) {
+        $('#username-input').value = cachedUser;
+        setTimeout(() => handleLogin(), 300);
+    }
+
     // Destination selection (Step 1)
     $$('.option-card').forEach(card => {
         card.addEventListener('click', () => handleDestinationClick(card.dataset.value));
@@ -289,11 +513,17 @@ function init() {
     });
 
     // Next button
-    $('#btn-next').addEventListener('click', () => {
+    $('#btn-next').addEventListener('click', async () => {
         if (state.onboardingStep === 1 && state.destination) {
             state.onboardingStep = 2;
             renderOnboardingStep();
         } else if (state.onboardingStep === 2 && state.selectedInterests.length > 0) {
+            // Save interests to progress
+            const progress = extractProgress(state.courseData);
+            progress._interests = state.selectedInterests;
+            progress._destination = state.destination;
+            await saveUser(state.username, progress);
+
             renderBuildings();
             showScreen('town');
         }
@@ -303,6 +533,14 @@ function init() {
     $('#btn-back').addEventListener('click', () => {
         showScreen('town');
     });
+
+    // Logout button
+    $('#btn-logout').addEventListener('click', handleLogout);
+
+    // Update town username
+    if (state.username) {
+        $('#town-username').textContent = state.username;
+    }
 }
 
 // ========== START ==========
