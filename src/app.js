@@ -483,6 +483,8 @@ function handleLogout() {
     state.progress = {};
     state.courseData = {};
     localStorage.removeItem('langtown_user');
+    // Keep last entered username for convenience
+    localStorage.setItem('langtown_last_user', state.username);
     $('#username-input').value = '';
     showScreen('login');
 }
@@ -500,6 +502,12 @@ function init() {
     if (cachedUser) {
         $('#username-input').value = cachedUser;
         setTimeout(() => handleLogin(), 300);
+    } else {
+        // Show last entered username as a hint
+        const lastUser = localStorage.getItem('langtown_last_user');
+        if (lastUser) {
+            $('#username-input').value = lastUser;
+        }
     }
 
     // Destination selection (Step 1)
