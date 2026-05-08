@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1 Renderer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+
+        /* === SCENES === */
+        .px-scene { width: 100%; height: 450px; position: relative; }
+        .sky-dusk { background: linear-gradient(180deg, #2d1b69 0%, #4a2c8a 20%, #7b4f6e 40%, #c47451 55%, #e8a87c 65%); }
+        .sky-day { background: linear-gradient(180deg, #87CEEB 0%, #b6e8ff 50%, #e8f5e9 100%); }
+        .sky-night { background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 30%, #2a3a4a 50%); }
+        .sky-dark { background: #2a2a3a; }
+
+        .star { position: absolute; width: 2px; height: 2px; background: #fff; box-shadow: 30px 20px 0 #fff, 80px 40px 0 #fff, 150px 15px 0 #fff, 200px 50px 0 #fff, 280px 30px 0 #fff, 320px 10px 0 #fff; }
+        .moon { position: absolute; top: 30px; right: 60px; width: 24px; height: 24px; background: #f5e6ca; border-radius: 50%; box-shadow: 0 0 20px rgba(245,230,202,0.5); }
+
+        .station-building { position: absolute; bottom: 100px; left: 30px; width: 160px; height: 120px; background: #4a3f35; border: 2px solid #3a2f25; }
+        .station-building::before { content: ''; position: absolute; top: -30px; left: -10px; width: 180px; height: 30px; background: #3a2f25; clip-path: polygon(10% 100%, 50% 0%, 90% 100%); }
+        .station-sign { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: #1a3a5c; color: #ffd699; font-size: 7px; font-weight: 900; padding: 5px 12px; letter-spacing: 1px; border: 1px solid #2a5a8c; }
+        .station-window { position: absolute; width: 20px; height: 24px; background: #ffd699; border: 1px solid #3a2f25; box-shadow: 0 0 8px rgba(255,214,153,0.6); }
+        .sw1 { top: 20px; left: 18px; } .sw2 { top: 20px; left: 58px; } .sw3 { top: 20px; left: 98px; } .sw4 { top: 60px; left: 18px; } .sw5 { top: 60px; left: 58px; } .sw6 { top: 60px; left: 98px; }
+
+        .street-lamp { position: absolute; }
+        .lamp-head { width: 18px; height: 10px; background: #444; border-radius: 3px 3px 0 0; margin: 0 auto; }
+        .lamp-light { width: 12px; height: 6px; background: #ffd699; margin: 0 auto; box-shadow: 0 4px 30px rgba(255,214,153,0.8); border-radius: 0 0 5px 5px; }
+        .lamp-pole { width: 4px; height: 70px; background: #555; margin: 0 auto; }
+
+        .ground { position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: #3a3a3a; border-top: 3px solid #555; }
+        .pavement { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #4a4a5a; border-top: 3px solid #666; }
+
+        .building-bg { position: absolute; bottom: 80px; left: 20px; right: 20px; height: 250px; background: linear-gradient(180deg, #8b7355 0%, #7b6345 100%); border: 2px solid #5b4325; }
+        .building-window { position: absolute; width: 24px; height: 28px; background: #c8e8ff; border: 1px solid #5b4325; }
+
+        .cafe-building { position: absolute; bottom: 80px; left: 15px; right: 15px; height: 220px; background: #8b6914; border: 2px solid #6b4f10; }
+        .cafe-awning { position: absolute; top: -12px; left: -5px; right: -5px; height: 22px; background: repeating-linear-gradient(90deg, #c44, #c44 15px, #fff 15px, #fff 30px); clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%); }
+        .cafe-sign-el { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: #2a1a0a; color: #ffd699; font-size: 8px; font-weight: 900; padding: 6px 16px; border: 1px solid #ffd699; letter-spacing: 2px; }
+        .cafe-window { position: absolute; width: 70px; height: 80px; background: #ffd699; border: 2px solid #6b4f10; box-shadow: 0 0 30px rgba(255,214,153,0.4); }
+        .cafe-window::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: #6b4f10; }
+        .cafe-window::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #6b4f10; }
+        .cw1 { top: 45px; left: 25px; } .cw2 { top: 45px; right: 25px; }
+        .cafe-door { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 34px; height: 65px; background: #6b4f10; border: 1px solid #4a3510; }
+        .cafe-door::before { content: ''; position: absolute; top: 50%; right: 6px; width: 4px; height: 4px; background: #ffd699; border-radius: 50%; }
+        .interior-person { position: absolute; width: 10px; height: 14px; border-radius: 5px 5px 0 0; }
+        .interior-table { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: #6b4f10; border-radius: 1px; }
+
+        /* === PHONE === */
+        .phone-overlay { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 150px; height: 260px; background: #0a0a1a; border: 3px solid #444; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); overflow: hidden; z-index: 10; }
+        .phone-overlay.wide { width: 170px; height: 280px; }
+        .phone-overlay.website { background: #f5f5f5; }
+        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 16px; background: #444; border-radius: 0 0 14px 14px; z-index: 11; }
+        .phone-status-bar { display: flex; justify-content: space-between; padding: 6px 14px 2px; font-size: 7px; color: #888; font-weight: 700; }
+        .phone-overlay.website .phone-status-bar { background: #f5f5f5; color: #666; }
+        .phone-battery { width: 18px; height: 9px; border: 1px solid #888; border-radius: 1px; position: relative; }
+        .phone-battery::before { content: ''; position: absolute; left: 1px; top: 1px; bottom: 1px; width: 3px; background: #f44; border-radius: 1px; }
+        .phone-battery::after { content: ''; position: absolute; right: -3px; top: 1px; width: 2px; height: 5px; background: #888; border-radius: 0 1px 1px 0; }
+        .phone-home { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 45px; height: 4px; background: #444; border-radius: 2px; }
+        .phone-overlay.website .phone-home { background: #ccc; }
+
+        .chat-avatar-row { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0; }
+        .chat-avatar { width: 22px; height: 22px; background: #f5c6a0; border-radius: 50%; border: 2px solid #ffd699; }
+        .chat-name { color: #ffd699; font-size: 9px; font-weight: 800; }
+        .chat-bubble { background: #1e1e3a; border-radius: 10px; padding: 7px 10px; color: #c8b8a8; font-size: 7px; line-height: 1.5; margin: 3px 6px; }
+        .chat-bubble.warn { border-left: 3px solid #FF9600; }
+        .chat-bubble.urgent { border-left: 3px solid #f44; }
+        .chat-bubble.review { background: #1e3a1e; border-left: 3px solid #58CC02; }
+        .phone-overlay.website .chat-bubble { background: #fff; color: #555; border: 1px solid #eee; }
+
+        /* Website in phone */
+        .phone-browser-bar { background: #e0e0e0; padding: 4px 8px; }
+        .browser-url { background: #fff; border-radius: 4px; padding: 3px 6px; font-size: 5px; color: #666; }
+        .web-header { background: #2a5a8c; color: #fff; font-size: 7px; font-weight: 800; padding: 5px 6px; margin: -6px -6px 0 -6px; }
+        .listing-card { background: #fff; border-radius: 6px; padding: 7px; margin: 4px 0; border: 1px solid #ddd; position: relative; }
+        .listing-price { font-size: 8px; font-weight: 900; color: #2a5a8c; }
+        .listing-desc { font-size: 5.5px; color: #555; line-height: 1.5; margin-top: 2px; }
+        .listing-keyword { color: #c44; font-weight: 800; text-decoration: underline; }
+        .listing-icon { position: absolute; right: 4px; top: 4px; font-size: 12px; }
+
+        /* === EMAIL === */
+        .email-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #f5f0e8; border: 2px solid #8b7355; border-radius: 4px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 10; }
+        .email-header { border-bottom: 1px solid #8b7355; padding-bottom: 12px; margin-bottom: 12px; }
+        .email-from { color: #4a3510; font-size: 8px; font-weight: 700; margin-bottom: 4px; }
+        .email-subject { color: #4a3510; font-size: 8px; font-weight: 800; }
+        .email-body { color: #3a2a1a; font-size: 8px; line-height: 2.2; }
+        .email-highlight { color: #c44; font-weight: 900; }
+
+        /* === CALL === */
+        .phone-call { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 200px; height: 300px; background: #0a0a1a; border: 3px solid #444; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); overflow: hidden; z-index: 10; }
+        .call-screen { padding: 20px 16px; text-align: center; }
+        .call-avatar { width: 50px; height: 50px; background: #2a5a8c; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .call-name { color: #fff; font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+        .call-status { color: #888; font-size: 9px; font-weight: 600; margin-bottom: 20px; }
+        .call-dialogue { background: #1e1e3a; border-radius: 10px; padding: 10px; margin-bottom: 6px; text-align: left; }
+        .call-dialogue .speaker { font-size: 8px; font-weight: 800; color: #4BAAFF; margin-bottom: 3px; }
+        .call-dialogue.you .speaker { color: #58CC02; }
+        .call-dialogue .text { font-size: 9px; color: #c8b8a8; line-height: 1.5; }
+
+        .call-ended { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 200px; height: 140px; background: #0a0a1a; border: 3px solid #444; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .call-ended-icon { font-size: 30px; margin-bottom: 10px; opacity: 0.5; }
+        .call-ended-text { color: #FF4B4B; font-size: 10px; font-weight: 800; }
+        .call-ended-time { color: #888; font-size: 8px; }
+        .rejected-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 24px; font-weight: 900; color: #FF4B4B; opacity: 0.3; border: 4px solid #FF4B4B; padding: 4px 16px; border-radius: 8px; z-index: 5; letter-spacing: 3px; }
+
+        .calculator { position: absolute; bottom: 120px; right: 15px; width: 100px; background: #2a2a2a; border: 1px solid #555; border-radius: 8px; padding: 8px; z-index: 15; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .calc-label { color: #888; font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .calc-display { background: #1a3a1a; color: #58CC02; font-size: 16px; font-weight: 900; text-align: right; padding: 8px; border-radius: 4px; }
+        .calc-display small { font-size: 12px; }
+
+        .bank-card { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 300px; height: 160px; background: linear-gradient(135deg, #1a5a3a 0%, #2a7a4a 100%); border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10; padding: 20px; }
+        .bank-logo { font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.6); margin-bottom: 30px; }
+        .bank-balance-label { font-size: 8px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .bank-balance { font-size: 28px; font-weight: 900; color: #fff; }
+        .bank-name { font-size: 10px; color: rgba(255,255,255,0.5); position: absolute; bottom: 20px; left: 20px; }
+
+        .receipt { position: absolute; bottom: 100px; left: calc(50% + 40px); width: 40px; height: 50px; background: #f5f0e8; border: 1px solid #ccc; transform: rotate(5deg); font-size: 3px; color: #666; padding: 4px; line-height: 1.4; }
+        .receipt-total { font-weight: 900; font-size: 5px; color: #333; border-top: 1px solid #ccc; padding-top: 2px; margin-top: 2px; }
+
+        .thought-bubble { position: absolute; bottom: 370px; right: 20px; width: 140px; background: rgba(255,255,255,0.95); border-radius: 14px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 6px; color: #666; line-height: 1.5; z-index: 20; }
+
+        /* Timeline */
+        .timeline { position: absolute; top: 30px; left: 40px; right: 40px; bottom: 30px; }
+        .timeline-line { position: absolute; left: 20px; top: 0; bottom: 0; width: 3px; background: #3a3a6a; border-radius: 2px; }
+        .timeline-item { position: relative; padding-left: 50px; margin-bottom: 20px; }
+        .timeline-dot { position: absolute; left: 10px; top: 4px; width: 22px; height: 22px; background: #2a5a8c; border-radius: 50%; border: 3px solid #4BAAFF; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .timeline-text { font-size: 10px; color: #c8b8a8; font-weight: 600; line-height: 1.5; }
+        .timeline-text strong { color: #e8d5b5; font-weight: 800; }
+
+        /* Preview cards */
+        .preview-cards { position: absolute; top: 40px; left: 30px; right: 30px; display: flex; flex-direction: column; gap: 12px; }
+        .preview-card { background: #1e1e3a; border: 2px solid #3a3a6a; border-radius: 12px; padding: 14px; }
+        .preview-card.locked { opacity: 0.5; border-style: dashed; }
+        .preview-card.current { border-color: #58CC02; }
+        .preview-card-label { font-size: 8px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .preview-card-label.completed { color: #58CC02; }
+        .preview-card-label.next { color: #ffd699; }
+        .preview-card-label.locked-label { color: #888; }
+        .preview-card-title { font-size: 13px; font-weight: 800; color: #e8d5b5; margin-bottom: 4px; }
+        .preview-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
+
+        /* Complete screen */
+        .complete-scene { width: 100%; height: 812px; background: linear-gradient(180deg, #1a3a1a 0%, #2a5a2a 50%, #1a1a2e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+        .complete-icon { font-size: 60px; margin-bottom: 20px; }
+        .complete-title { font-size: 28px; font-weight: 900; color: #58CC02; margin-bottom: 8px; }
+        .complete-subtitle { font-size: 14px; color: #a8d5a0; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 300px; margin-bottom: 24px; }
+        .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-number { font-size: 28px; font-weight: 900; color: #ffd699; }
+        .stat-label { font-size: 10px; color: #a8a8c8; font-weight: 600; margin-top: 4px; }
+        .vocab-summary-section { width: 100%; max-width: 300px; margin-bottom: 24px; }
+        .vocab-summary-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .vocab-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .vocab-tag { font-size: 9px; font-weight: 700; padding: 4px 10px; background: #1e1e3a; color: #c8b8a8; border-radius: 6px; }
+        .story-summary-box { width: 100%; max-width: 300px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-bottom: 24px; }
+        .story-summary-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 6px; }
+        .story-summary-text { font-size: 11px; color: #a8a8c8; font-weight: 600; line-height: 1.6; font-style: italic; }
+        .btn-row { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
+        .btn-primary { background: #58CC02; color: #fff; border: none; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #46a302; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary:active { transform: translateY(3px); box-shadow: none; }
+        .btn-secondary { background: transparent; color: #a8a8c8; border: 2px solid #3a3a6a; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; }
+
+        /* === TEXT AREA === */
+        .text-area { height: 362px; background: #1a1a2e; padding: 28px 24px 30px; display: flex; flex-direction: column; overflow-y: auto; }
+
+        .narrator { color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 10px; }
+        .narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
+
+        .dialogue-box { background: #2a2a4a; border: 1px solid #3a3a6a; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+        .dialogue-speaker { font-size: 11px; font-weight: 800; margin-bottom: 6px; }
+        .dialogue-speaker.speaker-priya { color: #ffd699; }
+        .dialogue-speaker.speaker-agent { color: #4BAAFF; }
+        .dialogue-speaker.speaker-you { color: #58CC02; }
+        .dialogue-text { color: #c8b8a8; font-size: 14px; font-weight: 600; line-height: 1.7; }
+
+        .thought { color: #a8a8c8; font-size: 14px; font-weight: 600; font-style: italic; border-left: 3px solid #555; padding-left: 14px; margin: 10px 0; line-height: 1.7; }
+
+        /* Questions */
+        .question-box { background: #1e1e3a; border: 2px solid #4a4a8a; border-radius: 12px; padding: 16px; }
+        .question-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .question-text { color: #e8d5b5; font-size: 13px; font-weight: 700; line-height: 1.7; margin-bottom: 12px; }
+        .option { display: flex; align-items: center; gap: 10px; background: #2a2a4a; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; border: 2px solid transparent; }
+        .option:hover { border-color: #4a4a8a; }
+        .option.correct { border-color: #58CC02; background: #1a2a1a; }
+        .option.wrong { border-color: #FF4B4B; background: #2a1a1a; }
+        .option-letter { width: 24px; height: 24px; border-radius: 50%; background: #3a3a6a; color: #e8d5b5; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .option.correct .option-letter { background: #58CC02; color: #fff; }
+        .option-text { color: #c8b8a8; font-size: 12px; font-weight: 600; }
+        .feedback { background: #1a2a1a; border: 1px solid #58CC02; border-radius: 8px; padding: 10px 12px; margin-top: 10px; display: none; }
+        .feedback.visible { display: block; }
+        .feedback-text { color: #58CC02; font-size: 12px; font-weight: 700; line-height: 1.6; }
+
+        /* Quiz (multiple questions) */
+        .quiz-q { background: #1e1e3a; border: 2px solid #4a4a8a; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+        .quiz-q-label { font-size: 8px; font-weight: 800; color: #ffd699; margin-bottom: 6px; }
+        .quiz-q-text { color: #e8d5b5; font-size: 11px; font-weight: 700; margin-bottom: 8px; line-height: 1.6; }
+
+        /* True/False */
+        .quiz-header { font-size: 12px; font-weight: 800; color: #ffd699; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .tf-item { display: flex; align-items: center; gap: 10px; background: #2a2a4a; border-radius: 8px; padding: 10px; margin-bottom: 6px; }
+        .tf-statement { flex: 1; font-size: 11px; color: #e8d5b5; font-weight: 600; line-height: 1.5; }
+        .tf-buttons { display: flex; gap: 6px; flex-shrink: 0; }
+        .tf-btn { width: 36px; height: 28px; border: none; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; }
+        .tf-btn.true-btn { background: #2a5a2a; color: #58CC02; }
+        .tf-btn.false-btn { background: #5a2a2a; color: #FF4B4B; }
+        .tf-result { font-size: 9px; font-weight: 700; margin-top: 2px; display: none; }
+        .tf-item.done .tf-result { display: block; }
+        .tf-result.correct { color: #58CC02; }
+        .tf-result.wrong { color: #FF4B4B; }
+
+        /* Decision */
+        .decision-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .decision-text { color: #e8d5b5; font-size: 14px; font-weight: 700; line-height: 1.7; margin-bottom: 10px; }
+        .flat-cards { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 340px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+        .flat-card { background: #1e1e3a; border: 2px solid #3a3a6a; border-radius: 12px; padding: 12px; cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
+        .flat-card:hover { border-color: #5a5a8a; transform: translateX(4px); }
+        .flat-card.selected { border-color: #58CC02; background: #1a2a1a; transform: translateX(6px); }
+        .flat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .flat-card-price { font-size: 14px; font-weight: 900; color: #4BAAFF; }
+        .flat-card-emoji { font-size: 20px; }
+        .flat-card-title { font-size: 12px; font-weight: 800; color: #e8d5b5; margin-bottom: 3px; }
+        .flat-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
+        .flat-card-tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-top: 4px; }
+        .tag-safe { background: #2a5a2a; color: #58CC02; }
+        .tag-budget { background: #5a4a2a; color: #FFC800; }
+        .tag-risk { background: #5a2a2a; color: #FF4B4B; }
+        .decision-option { display: flex; gap: 10px; background: #2a2a4a; border-radius: 10px; padding: 12px; margin-bottom: 6px; }
+        .decision-option.best { border: 2px solid #58CC02; }
+        .decision-letter { width: 28px; height: 28px; border-radius: 50%; background: #3a3a6a; color: #e8d5b5; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .decision-option.best .decision-letter { background: #58CC02; color: #fff; }
+        .decision-body { flex: 1; }
+        .decision-title { font-size: 12px; font-weight: 800; color: #e8d5b5; margin-bottom: 2px; }
+        .decision-desc { font-size: 10px; color: #a8a8c8; line-height: 1.4; }
+
+        /* Vocab review grid */
+        .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 12px; }
+        .vocab-item { background: #1e1e3a; border-radius: 6px; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
+        .vocab-emoji { font-size: 12px; }
+        .vocab-word { font-size: 10px; font-weight: 800; color: #e8d5b5; }
+
+        /* Preview next */
+        .next-title { font-size: 18px; font-weight: 900; color: #4BAAFF; margin-bottom: 8px; }
+        .next-desc { font-size: 13px; color: #a8a8c8; text-align: center; line-height: 1.7; max-width: 300px; margin-bottom: 20px; }
+
+        /* Recap */
+        .recap-title { font-size: 20px; font-weight: 900; color: #ffd699; margin-bottom: 16px; text-align: center; }
+        .recap-subtitle { font-size: 13px; color: #a8a8c8; text-align: center; line-height: 1.7; max-width: 300px; }
+
+        /* Slide counter */
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+
+        /* Nav */
+        .slide-nav { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; z-index: 100; }
+        .nav-btn { background: #333; color: #fff; border: 1px solid #555; padding: 8px 16px; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .nav-btn:hover { background: #555; }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper" id="app">
+        <div class="slide-counter" id="slide-counter"></div>
+        <div id="slide-content"></div>
+        <div class="slide-nav">
+            <button class="nav-btn" id="prev-btn" onclick="nav(-1)">PREV</button>
+            <button class="nav-btn" id="next-btn" onclick="nav(1)">NEXT</button>
+        </div>
+    </div>
+
+    <script>
+    let DATA = null;
+    let currentSlide = 0;
+
+    async function loadData() {
+        const res = await fetch('unit1-data.json');
+        DATA = await res.json();
+        renderSlide(0);
+    }
+
+    function renderSlide(idx) {
+        currentSlide = idx;
+        const slide = DATA.slides[idx];
+        const scene = DATA.scenes[slide.scene] || {};
+        const el = document.getElementById('slide-content');
+        document.getElementById('slide-counter').textContent = `Slide ${slide.id} / ${DATA.slides.length}`;
+
+        let html = '';
+
+        // === SCENE ===
+        if (slide.type === 'complete') {
+            html += renderComplete(slide);
+        } else {
+            html += '<div class="px-scene sky-' + (scene.sky || 'dark') + '">';
+            html += renderSceneElements(slide, scene);
+            html += '</div>';
+        }
+
+        // === TEXT AREA ===
+        if (slide.type !== 'complete') {
+            html += '<div class="text-area">';
+            html += renderContent(slide);
+            html += '</div>';
+        }
+
+        el.innerHTML = html;
+        updateNav();
+
+        // Attach event handlers after render
+        attachHandlers(slide);
+    }
+
+    function renderSceneElements(slide, scene) {
+        let h = '';
+        if (scene.sky === 'night') h += '<div class="star"></div>';
+        if (scene.sky === 'dusk') { h += '<div class="star"></div>'; h += '<div class="moon"></div>'; }
+
+        // Station dusk/day
+        if (slide.scene === 'station-dusk' || slide.scene === 'station-day') {
+            h += '<div class="station-building"><div class="station-sign">OAKFIELD STATION</div>';
+            ['sw1','sw2','sw3','sw4','sw5','sw6'].forEach(c => { h += '<div class="station-window ' + c + '"></div>'; });
+            h += '</div>';
+        }
+        // Street lamp
+        if (slide.scene === 'station-dusk' || slide.scene === 'station-night') {
+            const pos = slide.scene === 'station-night' ? 'left:25px;bottom:80px;' : 'right:70px;bottom:100px;';
+            h += '<div class="street-lamp" style="' + pos + '"><div class="lamp-head"></div><div class="lamp-light"></div><div class="lamp-pole"></div></div>';
+        }
+        // Ground / pavement
+        if (slide.scene === 'station-dusk' || slide.scene === 'station-day') h += '<div class="ground"></div>';
+        if (slide.scene === 'station-night') h += '<div class="pavement"></div>';
+
+        // Building (day scene)
+        if (slide.scene === 'station-day') {
+            h += '<div class="building-bg">';
+            ['bw1','bw2','bw3','bw4','bw5','bw6'].forEach(c => { h += '<div class="building-window ' + c + '" style="top:' + (c <= 'bw3' ? '20px' : '60px') + ';left:' + (c === 'bw1' || c === 'bw4' ? '30px' : c === 'bw2' || c === 'bw5' ? '70px' : '110px') + ';"></div>'; });
+            h += '</div>';
+        }
+
+        // Cafe (night scene)
+        if (slide.scene === 'station-night') {
+            h += '<div class="cafe-building"><div class="cafe-awning"></div><div class="cafe-sign-el">CAFE</div>';
+            h += '<div class="cafe-window cw1"><div class="interior-table"></div><div class="interior-person" style="background:#4a4a6a;left:8px;bottom:20px;"></div><div class="interior-person" style="background:#6a4a4a;right:8px;bottom:20px;"></div></div>';
+            h += '<div class="cafe-window cw2"><div class="interior-table"></div><div class="interior-person" style="background:#4a6a4a;left:10px;bottom:20px;"></div></div>';
+            h += '<div class="cafe-door"></div></div>';
+        }
+
+        // === Phone ===
+        if (slide.phone) {
+            const p = slide.phone;
+            if (p.isWebsite) {
+                h += '<div class="phone-overlay wide website">';
+                h += '<div class="phone-notch"></div>';
+                h += '<div class="phone-status-bar"><span>10%</span><span>18:50</span><div class="phone-battery"></div></div>';
+                h += '<div class="phone-browser-bar"><div class="browser-url">' + (p.url || '') + '</div></div>';
+                if (p.header) h += '<div class="web-header">' + p.header + '</div>';
+                if (p.filters) {
+                    h += '<div style="padding:4px 6px;display:flex;gap:3px;">';
+                    p.filters.forEach((f, i) => { h += '<div style="font-size:5px;font-weight:700;padding:3px 6px;border-radius:3px;background:' + (i === 0 ? '#2a5a8c;color:#fff;' : '#e8e8e8;color:#555;') + '">' + f + '</div>'; });
+                    h += '</div>';
+                }
+                if (p.listings) {
+                    h += '<div style="padding:4px 6px;">';
+                    p.listings.forEach(l => {
+                        h += '<div class="listing-card">';
+                        if (l.icon) h += '<div class="listing-icon">' + l.icon + '</div>';
+                        h += '<div class="listing-price">' + l.price + '</div>';
+                        h += '<div class="listing-desc">' + highlightKeywords(l.desc, l.keywords) + '</div>';
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                }
+                h += '<div class="phone-home"></div></div>';
+            } else {
+                h += '<div class="phone-overlay' + (p.messages && p.messages.some(m => m.length > 40) ? ' wide' : '') + '">';
+                h += '<div class="phone-notch"></div>';
+                h += '<div class="phone-status-bar"><span>9%</span><span>18:52</span></div>';
+                h += '<div class="chat-avatar-row"><div class="chat-avatar"></div><div class="chat-name">' + p.from + '</div></div>';
+                p.messages.forEach((m, i) => {
+                    let cls = 'chat-bubble';
+                    if (p.warn && i >= p.warn - 1) cls += ' warn';
+                    if (p.urgent && i >= p.urgent - 1) cls += ' urgent';
+                    if (p.review) cls += ' review';
+                    h += '<div class="' + cls + '">' + m + '</div>';
+                });
+                if (p.review) {
+                    p.review.forEach(r => { h += '<div class="chat-bubble review">' + r + '</div>'; });
+                }
+                h += '<div class="phone-home"></div></div>';
+            }
+        }
+
+        // === Email ===
+        if (slide.email) {
+            const e = slide.email;
+            h += '<div class="email-overlay"><div class="email-header"><div class="email-from">From: ' + e.from + '</div><div class="email-subject">Subject: ' + e.subject + '</div></div>';
+            h += '<div class="email-body">' + (e.highlight ? e.body.replace(e.highlight, '<span class="email-highlight">' + e.highlight + '</span>') : e.body) + '</div>';
+            h += '</div>';
+        }
+
+        // === Call ===
+        if (slide.phoneCall) {
+            const c = slide.phoneCall;
+            h += '<div class="phone-call"><div class="phone-notch"></div><div class="call-screen">';
+            h += '<div class="call-avatar">📞</div><div class="call-name">' + c.title + '</div><div class="call-status">' + c.duration + '</div>';
+            c.dialogue.forEach(d => {
+                h += '<div class="call-dialogue' + (d.speaker === 'You' ? ' you' : '') + '">';
+                h += '<div class="speaker">' + d.speaker + '</div>';
+                h += '<div class="text">' + d.text + '</div></div>';
+            });
+            h += '</div><div class="phone-home"></div></div>';
+        }
+
+        // === Call ended ===
+        if (slide.callEnded) {
+            h += '<div class="call-ended"><div class="call-ended-icon">📵</div><div class="call-ended-text">Call Ended</div><div class="call-ended-time">Duration: 1:23</div></div>';
+        }
+        if (slide.rejected) {
+            h += '<div class="rejected-stamp">REJECTED</div>';
+        }
+
+        // === Calculator ===
+        if (slide.calculator) {
+            h += '<div class="calculator"><div class="calc-label">Your calculator</div><div class="calc-display">' + slide.calculator.expression + '<br><small>' + slide.calculator.result + '</small></div></div>';
+        }
+
+        // === Bank card ===
+        if (slide.bankCard) {
+            const b = slide.bankCard;
+            h += '<div class="bank-card"><div class="bank-logo">' + b.bank + '</div><div class="bank-balance-label">Current balance</div><div class="bank-balance">' + b.balance + '</div><div class="bank-name">' + b.cardNumber + '</div></div>';
+        }
+
+        // === Receipt ===
+        if (slide.receipt) {
+            h += '<div class="receipt">' + slide.receipt.item + '<br>—————<br><div class="receipt-total">' + slide.receipt.total + '</div></div>';
+        }
+
+        // === Thought bubble ===
+        if (slide.thoughtBubble) {
+            h += '<div class="thought-bubble">' + slide.thoughtBubble.replace(/\n/g, '<br>') + '</div>';
+        }
+
+        // === Decision flat cards ===
+        if (slide.type === 'decision' && slide.decisions && slide.decisions[0].price) {
+            h += '<div class="flat-cards">';
+            slide.decisions.forEach(d => {
+                h += '<div class="flat-card" data-decision="' + d.letter + '">';
+                h += '<div class="flat-card-header"><div class="flat-card-price">' + d.price + '</div><div class="flat-card-emoji">' + d.emoji + '</div></div>';
+                h += '<div class="flat-card-title">' + d.title + '</div>';
+                h += '<div class="flat-card-desc">' + d.desc + '</div>';
+                h += '<div class="flat-card-tag tag-' + d.tagType + '">' + d.tag + '</div>';
+                h += '</div>';
+            });
+            h += '</div>';
+        }
+
+        // === Timeline ===
+        if (slide.timeline) {
+            h += '<div class="timeline"><div class="timeline-line"></div>';
+            slide.timeline.forEach(t => {
+                h += '<div class="timeline-item"><div class="timeline-dot">' + t.emoji + '</div><div class="timeline-text"><strong>' + t.text.split('—')[0].trim() + '</strong>' + (t.text.includes('—') ? '—' + t.text.split('—')[1] : '') + '</div></div>';
+            });
+            h += '</div>';
+        }
+
+        // === Preview cards ===
+        if (slide.unitCards) {
+            h += '<div class="preview-cards">';
+            slide.unitCards.forEach(c => {
+                const locked = c.status === 'locked' ? ' locked' : c.status === 'next' ? '' : ' current';
+                const labelCls = c.status === 'completed' ? ' completed' : c.status === 'next' ? ' next' : ' locked-label';
+                const label = c.status === 'completed' ? '✅ Completed' : c.status === 'next' ? 'Next' : 'Locked';
+                h += '<div class="preview-card' + locked + '"><div class="preview-card-label' + labelCls + '">' + label + '</div>';
+                h += '<div class="preview-card-title">' + c.title + '</div><div class="preview-card-desc">' + c.desc + '</div></div>';
+            });
+            h += '</div>';
+        }
+
+        return h;
+    }
+
+    function highlightKeywords(desc, keywords) {
+        if (!keywords) return desc;
+        let result = desc;
+        keywords.forEach(kw => {
+            result = result.replace(kw, '<span class="listing-keyword">' + kw + '</span>');
+        });
+        return result;
+    }
+
+    function renderContent(slide) {
+        const c = slide.content;
+        let h = '';
+
+        // Dialogue boxes
+        if (c.dialogue) {
+            const sc = c.dialogue.speaker ? 'speaker-' + c.dialogue.speaker.toLowerCase().replace(/[^a-z]/g, '') : 'speaker-priya';
+            h += '<div class="dialogue-box"><div class="dialogue-speaker ' + sc + '">' + c.dialogue.speaker + '</div><div class="dialogue-text">' + c.dialogue.text + '</div></div>';
+        }
+        if (c.dialogues) {
+            c.dialogues.forEach(d => {
+                const sc = d.speakerColor ? 'speaker-' + d.speakerColor : 'speaker-priya';
+                h += '<div class="dialogue-box"><div class="dialogue-speaker ' + sc + '">' + d.speaker + '</div><div class="dialogue-text">' + d.text + '</div></div>';
+            });
+        }
+
+        // Narration
+        if (c.narration) {
+            h += '<div class="narrator">' + c.narration.replace(/\n/g, '<br>') + '</div>';
+        }
+
+        // Thought
+        if (c.thought) {
+            h += '<div class="thought">' + c.thought.replace(/\n/g, '<br>') + '</div>';
+        }
+
+        // Question
+        if (slide.question) {
+            const q = slide.question;
+            h += '<div class="question-box"><div class="question-label">' + q.label + '</div>';
+            h += '<div class="question-text">' + q.text + '</div>';
+            q.options.forEach((o, i) => {
+                h += '<div class="option" data-correct="' + o.correct + '"><div class="option-letter">' + o.letter + '</div><div class="option-text">' + o.text + '</div></div>';
+            });
+            h += '<div class="feedback"><div class="feedback-text">' + q.feedback + '</div></div>';
+            h += '</div>';
+        }
+
+        // Quiz
+        if (slide.quiz) {
+            slide.quiz.forEach((q, qi) => {
+                h += '<div class="quiz-q" id="quiz-' + qi + '"><div class="quiz-q-label">' + q.label + '</div>';
+                h += '<div class="quiz-q-text">' + q.question + '</div>';
+                q.options.forEach(o => {
+                    h += '<div class="option" data-correct="' + o.correct + '" data-quiz="' + qi + '"><div class="option-letter">' + o.letter + '</div><div class="option-text">' + o.text + '</div></div>';
+                });
+                h += '<div class="feedback"><div class="feedback-text">' + q.feedback + '</div></div></div>';
+            });
+        }
+
+        // True/False
+        if (slide.quizTF) {
+            h += '<div class="quiz-header">' + c.quizHeader + '</div>';
+            slide.quizTF.forEach((q, i) => {
+                h += '<div class="tf-item" id="tf-' + i + '"><div class="tf-statement">' + q.statement + '</div>';
+                h += '<div class="tf-buttons"><button class="tf-btn true-btn" onclick="tfAnswer(' + i + ',' + q.answer + ',true)">T</button>';
+                h += '<button class="tf-btn false-btn" onclick="tfAnswer(' + i + ',' + q.answer + ',false)">F</button></div>';
+                h += '<div class="tf-result"></div></div>';
+            });
+        }
+
+        // Decision text
+        if (slide.type === 'decision' && c.decisionLabel) {
+            h += '<div class="decision-label">' + c.decisionLabel + '</div>';
+            if (c.decisionText) h += '<div class="decision-text">' + c.decisionText + '</div>';
+        }
+        if (c.narration && slide.type === 'decision') {
+            h += '<div class="narrator">' + c.narration + '</div>';
+        }
+
+        // Vocab review
+        if (slide.vocabReview) {
+            h += '<div class="vocab-grid">';
+            slide.vocabReview.forEach(v => {
+                h += '<div class="vocab-item"><span class="vocab-emoji">' + v.emoji + '</span><span class="vocab-word">' + v.word + '</span></div>';
+            });
+            h += '</div>';
+        }
+
+        // Recap
+        if (slide.type === 'recap') {
+            h += '<div class="recap-title">' + c.recapTitle + '</div>';
+            h += '<div class="recap-subtitle">' + (c.recapSubtitle || '').replace(/\n/g, '<br>') + '</div>';
+        }
+
+        // Preview next
+        if (slide.type === 'preview') {
+            h += '<div class="next-title">' + c.nextTitle + '</div>';
+            h += '<div class="next-desc">' + c.nextDesc + '</div>';
+            h += '<button class="btn-primary" onclick="alert(\'Unit 2 coming soon!\')">Continue to Unit 2 →</button>';
+        }
+
+        return h;
+    }
+
+    function renderComplete(slide) {
+        let h = '<div class="complete-scene">';
+        h += '<div class="complete-icon">🏠</div>';
+        h += '<div class="complete-title">Unit 1 Complete!</div>';
+        h += '<div class="complete-subtitle">"' + DATA.unit.title + '"</div>';
+        h += '<div class="stats-grid">';
+        h += '<div class="stat-card"><div class="stat-number">' + slide.stats.words + '</div><div class="stat-label">New words</div></div>';
+        h += '<div class="stat-card"><div class="stat-number">' + slide.stats.exercises + '</div><div class="stat-label">Exercises</div></div>';
+        h += '<div class="stat-card"><div class="stat-number">' + slide.stats.decisions + '</div><div class="stat-label">Decisions made</div></div>';
+        h += '<div class="stat-card"><div class="stat-number">' + slide.stats.rejected + '</div><div class="stat-label">Rejected call</div></div>';
+        h += '</div>';
+        h += '<div class="vocab-summary-section"><div class="vocab-summary-label">Words learned</div><div class="vocab-tags">';
+        slide.vocabSummary.forEach(w => { h += '<span class="vocab-tag">' + w + '</span>'; });
+        h += '</div></div>';
+        h += '<div class="story-summary-box"><div class="story-summary-label">Story progress</div><div class="story-summary-text">' + slide.storySummary + '</div></div>';
+        h += '<div class="btn-row"><button class="btn-primary" onclick="alert(\'Unit 2 coming soon!\')">Continue to Unit 2 →</button>';
+        h += '<button class="btn-secondary" onclick="renderSlide(0)">Review Unit 1</button></div>';
+        h += '</div>';
+        return h;
+    }
+
+    function attachHandlers(slide) {
+        // Single question options
+        document.querySelectorAll('.question-box .option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                const box = this.closest('.question-box');
+                if (box.querySelector('.feedback.visible')) return;
+                const correct = this.dataset.correct === 'true';
+                document.querySelectorAll('.question-box .option').forEach(o => o.classList.remove('correct', 'wrong'));
+                if (correct) {
+                    this.classList.add('correct');
+                    box.querySelector('.feedback').classList.add('visible');
+                } else {
+                    this.classList.add('wrong');
+                    setTimeout(() => this.classList.remove('wrong'), 800);
+                }
+            });
+        });
+
+        // Quiz options
+        document.querySelectorAll('.quiz-q .option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                const q = this.closest('.quiz-q');
+                if (q.querySelector('.feedback.visible')) return;
+                const correct = this.dataset.correct === 'true';
+                q.querySelectorAll('.option').forEach(o => o.classList.remove('correct', 'wrong'));
+                if (correct) {
+                    this.classList.add('correct');
+                    q.querySelector('.feedback').classList.add('visible');
+                } else {
+                    this.classList.add('wrong');
+                    setTimeout(() => this.classList.remove('wrong'), 800);
+                }
+            });
+        });
+
+        // Flat cards
+        document.querySelectorAll('.flat-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.flat-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    }
+
+    function tfAnswer(idx, correctAnswer, chosen) {
+        const el = document.getElementById('tf-' + idx);
+        if (el.classList.contains('done')) return;
+        el.classList.add('done');
+        const isCorrect = chosen === correctAnswer;
+        const result = el.querySelector('.tf-result');
+        result.textContent = isCorrect ? '✅ Correct!' : '❌ Not quite — the answer is ' + (correctAnswer ? 'True' : 'False');
+        result.className = 'tf-result ' + (isCorrect ? 'correct' : 'wrong');
+    }
+
+    function nav(dir) {
+        const next = currentSlide + dir;
+        if (next >= 0 && next < DATA.slides.length) {
+            renderSlide(next);
+        }
+    }
+
+    function updateNav() {
+        document.getElementById('prev-btn').disabled = currentSlide === 0;
+        document.getElementById('next-btn').disabled = currentSlide === DATA.slides.length - 1;
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nav(1);
+        if (e.key === 'ArrowLeft') nav(-1);
+    });
+
+    loadData();
+    </script>
+</body>
+</html>
