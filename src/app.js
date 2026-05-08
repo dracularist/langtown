@@ -1,7 +1,7 @@
 // ========== SUPABASE SETUP ==========
 const SUPABASE_URL = 'https://edjoserjwhffnkdayzda.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkam9zZXJqd2hmZm5rZGF5emRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMjc3MjUsImV4cCI6MjA5MzgwMzcyNX0.m6qU3uIbV_LPsPUp4dI5flejCBPD1Dx4S4Bn51wYCk8';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ========== DATA ==========
 
@@ -139,7 +139,7 @@ function showScreen(name) {
 
 // ========== SUPABASE HELPERS ==========
 async function checkUser(username) {
-    const { data, error } = await supabase
+    const { data, error } = await db
         .from('users')
         .select('username, progress')
         .eq('username', username.toLowerCase())
@@ -153,7 +153,7 @@ async function checkUser(username) {
 async function saveUser(username, progress) {
     const usernameLower = username.toLowerCase().trim();
     const now = new Date().toISOString();
-    const { error } = await supabase
+    const { error } = await db
         .from('users')
         .upsert({
             username: usernameLower,
