@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 12 — Budget Check</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .px-scene { width: 100%; height: 450px; position: relative; background: linear-gradient(180deg, #1a3a5c 0%, #2a5a8c 30%, #3a6a9c 50%, #7b8f6e 70%, #8b9f7e 100%); }
+        .building-bg { position: absolute; bottom: 80px; left: 20px; right: 20px; height: 250px; background: linear-gradient(180deg, #8b7355 0%, #7b6345 100%); border: 2px solid #5b4325; }
+        .building-window { position: absolute; width: 24px; height: 28px; background: #c8e8ff; border: 1px solid #5b4325; }
+        .bw1 { top: 20px; left: 30px; } .bw2 { top: 20px; left: 70px; } .bw3 { top: 20px; left: 110px; }
+        .bw4 { top: 60px; left: 30px; } .bw5 { top: 60px; left: 70px; } .bw6 { top: 60px; left: 110px; }
+        .pavement { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #5a5a6a; border-top: 3px solid #777; }
+
+        /* Bank card */
+        .bank-card {
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 160px; background: linear-gradient(135deg, #1a5a3a 0%, #2a7a4a 100%);
+            border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 10;
+            padding: 20px;
+        }
+        .bank-logo { font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.6); margin-bottom: 30px; }
+        .bank-balance-label { font-size: 8px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .bank-balance { font-size: 28px; font-weight: 900; color: #fff; }
+        .bank-name { font-size: 10px; color: rgba(255,255,255,0.5); position: absolute; bottom: 20px; left: 20px; }
+
+        /* Expense tags */
+        .expense-tags { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 11; }
+        .expense-tag { font-size: 8px; font-weight: 700; padding: 4px 10px; border-radius: 12px; background: #2a1a1a; color: #FF4B4B; border: 1px solid #5a2a2a; }
+
+        .text-area { height: 362px; background: #1a1a2e; padding: 28px 24px 30px; display: flex; flex-direction: column; justify-content: center; }
+        .narrator { color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 16px; }
+        .narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
+        .question-box { background: #1e1e3a; border: 2px solid #4a4a8a; border-radius: 12px; padding: 16px; }
+        .question-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .question-text { color: #e8d5b5; font-size: 13px; font-weight: 700; line-height: 1.7; margin-bottom: 12px; }
+        .option { display: flex; align-items: center; gap: 10px; background: #2a2a4a; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; border: 2px solid transparent; }
+        .option.correct { border-color: #58CC02; background: #1a2a1a; }
+        .option.wrong { border-color: #FF4B4B; background: #2a1a1a; }
+        .option-letter { width: 24px; height: 24px; border-radius: 50%; background: #3a3a6a; color: #e8d5b5; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .option.correct .option-letter { background: #58CC02; color: #fff; }
+        .option-text { color: #c8b8a8; font-size: 12px; font-weight: 600; }
+        .feedback { background: #1a2a1a; border: 1px solid #58CC02; border-radius: 8px; padding: 10px 12px; margin-top: 10px; display: none; }
+        .feedback.visible { display: block; }
+        .feedback-text { color: #58CC02; font-size: 12px; font-weight: 700; line-height: 1.6; }
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 12 / 20</div>
+        <div class="px-scene">
+            <div class="building-bg">
+                <div class="building-window bw1"></div><div class="building-window bw2"></div>
+                <div class="building-window bw3"></div><div class="building-window bw4"></div>
+                <div class="building-window bw5"></div><div class="building-window bw6"></div>
+            </div>
+            <div class="pavement"></div>
+            <div class="bank-card">
+                <div class="bank-logo">YOUR BANK</div>
+                <div class="bank-balance-label">Current balance</div>
+                <div class="bank-balance">£1,840.00</div>
+                <div class="bank-name">**** **** **** 4821</div>
+            </div>
+        </div>
+        <div class="text-area">
+            <div class="narrator">
+                You check your bank account.
+            </div>
+            <div class="question-box">
+                <div class="question-label">Budget check</div>
+                <div class="question-text">Rent: £520 + Deposit: £520 + Basic furniture: ~£300. Your balance is £1,840. Do you have enough?</div>
+                <div class="option" onclick="pick(this,true)">
+                    <div class="option-letter">A</div>
+                    <div class="option-text">Yes — enough, with some left over</div>
+                </div>
+                <div class="option" onclick="pick(this,false)">
+                    <div class="option-letter">B</div>
+                    <div class="option-text">Just enough — barely</div>
+                </div>
+                <div class="option" onclick="pick(this,false)">
+                    <div class="option-letter">C</div>
+                    <div class="option-text">No — not enough money</div>
+                </div>
+                <div class="feedback" id="fb">
+                    <div class="feedback-text">✅ Correct! £1,840 − £1,340 = £500 left. Tight, but enough to start. You need to move fast.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function pick(el, correct) {
+            document.querySelectorAll('.option').forEach(o => { o.classList.remove('correct','wrong'); });
+            if (correct) { el.classList.add('correct'); document.getElementById('fb').classList.add('visible'); }
+            else { el.classList.add('wrong'); setTimeout(() => el.classList.remove('wrong'), 800); }
+        }
+    </script>
+</body>
+</html>

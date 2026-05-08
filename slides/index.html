@@ -7,133 +7,142 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #1a1a2e;
-            padding: 30px;
-            font-family: 'Nunito', sans-serif;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #ffd699;
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            color: #888;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-        }
-        .slide-thumb {
-            background: #2a2a4a;
-            border-radius: 12px;
-            padding: 12px;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #3a3a6a;
-        }
-        .slide-thumb:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            border-color: #5a5a8a;
-        }
-        .slide-number {
-            font-size: 10px;
-            font-weight: 800;
-            color: #ffd699;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .slide-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #e8d5b5;
-            margin-bottom: 4px;
-        }
-        .slide-type {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 4px;
-            display: inline-block;
-        }
+        body { background: #1a1a2e; padding: 30px; font-family: 'Nunito', sans-serif; min-height: 100vh; }
+        h1 { color: #ffd699; font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+        .subtitle { color: #888; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        .story-summary { color: #a8a8c8; font-size: 12px; font-style: italic; max-width: 500px; margin-bottom: 30px; line-height: 1.6; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .slide-thumb { background: #2a2a4a; border-radius: 10px; padding: 12px; text-decoration: none; border: 1px solid #3a3a6a; transition: transform 0.2s, box-shadow 0.2s; }
+        .slide-thumb:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); border-color: #5a5a8a; }
+        .slide-number { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 4px; }
+        .slide-title { font-size: 12px; font-weight: 700; color: #e8d5b5; margin-bottom: 6px; }
+        .slide-type { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px; display: inline-block; }
         .type-story { background: #2a5a2a; color: #58CC02; }
         .type-question { background: #2a2a5a; color: #4BAAFF; }
         .type-quiz { background: #5a2a5a; color: #CE82FF; }
-        .type-recap { background: #5a4a2a; color: #FFC800; }
-        .type-decision { background: #5a2a2a; color: #FF4B4B; }
-        .placeholder {
-            color: #555;
-            font-size: 11px;
-            font-style: italic;
-        }
+        .type-decision { background: #5a4a2a; color: #FFC800; }
+        .type-recap { background: #5a2a2a; color: #FF4B4B; }
+        .type-complete { background: #1a3a1a; color: #58CC02; }
+        .divider { grid-column: 1 / -1; padding: 12px 0 4px; }
+        .divider-label { font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2px; border-top: 1px solid #333; padding-top: 12px; }
     </style>
 </head>
 <body>
     <h1>Accommodation — Unit 1</h1>
-    <p class="subtitle">"Two Suitcases and Nowhere to Sleep" — Click a slide to open it</p>
+    <p class="subtitle">"Two Suitcases and Nowhere to Sleep" — Click a slide to preview it</p>
+    <p class="story-summary">You arrive in the UK → agency cancels your room → you search for a flat → learn the vocabulary → call an agent → get rejected (guarantor) → survive day one in a café.</p>
 
     <div class="gallery">
+        <div class="divider"><div class="divider-label">Act 1 — Arrival</div></div>
+
         <a href="unit1/slide-01.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 01</div>
             <div class="slide-title">Station at Dusk</div>
             <span class="slide-type type-story">Story</span>
         </a>
-
         <a href="unit1/slide-02.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 02</div>
             <div class="slide-title">Priya's Message</div>
             <span class="slide-type type-story">Story</span>
         </a>
-
         <a href="unit1/slide-03.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 03</div>
             <div class="slide-title">The Email</div>
             <span class="slide-type type-story">Story</span>
         </a>
-
         <a href="unit1/slide-04.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 04</div>
             <div class="slide-title">Understanding Check</div>
             <span class="slide-type type-question">Question</span>
         </a>
 
+        <div class="divider"><div class="divider-label">Act 2 — The Search</div></div>
+
         <a href="unit1/slide-05.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 05</div>
             <div class="slide-title">Rental Website</div>
             <span class="slide-type type-story">Story</span>
         </a>
-
-        <a href="#" class="slide-thumb">
+        <a href="unit1/slide-06.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 06</div>
-            <div class="slide-title">Vocab Quiz 1</div>
+            <div class="slide-title">Vocab: Property Types</div>
             <span class="slide-type type-quiz">Quiz</span>
-            <div class="placeholder">Coming soon</div>
+        </a>
+        <a href="unit1/slide-07.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 07</div>
+            <div class="slide-title">Browsing Listings</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+        <a href="unit1/slide-08.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 08</div>
+            <div class="slide-title">Vocab: Furnished & Cosy</div>
+            <span class="slide-type type-quiz">Quiz</span>
+        </a>
+        <a href="unit1/slide-09.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 09</div>
+            <div class="slide-title">The Cheap Bedsit</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+        <a href="unit1/slide-10.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 10</div>
+            <div class="slide-title">Which Flat Do You Call?</div>
+            <span class="slide-type type-decision">Decision</span>
         </a>
 
-        <a href="#" class="slide-thumb">
-            <div class="slide-number">Slide 07–14</div>
-            <div class="slide-title">More scenes & quizzes</div>
-            <div class="placeholder">Coming soon</div>
+        <div class="divider"><div class="divider-label">Act 3 — The Call</div></div>
+
+        <a href="unit1/slide-11.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 11</div>
+            <div class="slide-title">The Phone Call</div>
+            <span class="slide-type type-story">Story</span>
         </a>
+        <a href="unit1/slide-12.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 12</div>
+            <div class="slide-title">Budget Check</div>
+            <span class="slide-type type-question">Question</span>
+        </a>
+        <a href="unit1/slide-13.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 13</div>
+            <div class="slide-title">The Guarantor Wall</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+        <a href="unit1/slide-14.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 14</div>
+            <div class="slide-title">What Do You Do Next?</div>
+            <span class="slide-type type-decision">Decision</span>
+        </a>
+
+        <div class="divider"><div class="divider-label">Act 4 — Nightfall</div></div>
 
         <a href="unit1/slide-15.html" class="slide-thumb" target="_blank">
             <div class="slide-number">Slide 15</div>
             <div class="slide-title">Cafe at Night</div>
             <span class="slide-type type-story">Story</span>
         </a>
-
-        <a href="#" class="slide-thumb">
-            <div class="slide-number">Slide 16–20</div>
-            <div class="slide-title">Recap & Complete</div>
-            <div class="placeholder">Coming soon</div>
+        <a href="unit1/slide-16.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 16</div>
+            <div class="slide-title">Priya's Review</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+        <a href="unit1/slide-17.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 17</div>
+            <div class="slide-title">Final Review Quiz</div>
+            <span class="slide-type type-quiz">Quiz</span>
+        </a>
+        <a href="unit1/slide-18.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 18</div>
+            <div class="slide-title">Story Recap</div>
+            <span class="slide-type type-recap">Recap</span>
+        </a>
+        <a href="unit1/slide-19.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 19</div>
+            <div class="slide-title">Coming Up Next</div>
+            <span class="slide-type type-recap">Preview</span>
+        </a>
+        <a href="unit1/slide-20.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 20</div>
+            <div class="slide-title">Unit 1 Complete!</div>
+            <span class="slide-type type-complete">Complete</span>
         </a>
     </div>
 </body>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 17 — Final Review Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .px-scene { width: 100%; height: 450px; position: relative; background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 30%, #2a3a4a 50%); }
+        .star { position: absolute; width: 2px; height: 2px; background: #fff; box-shadow: 40px 20px 0 #fff, 180px 40px 0 #fff, 300px 15px 0 #fff; }
+        .cafe-building { position: absolute; bottom: 80px; left: 15px; right: 15px; height: 220px; background: #8b6914; border: 2px solid #6b4f10; }
+        .cafe-awning { position: absolute; top: -12px; left: -5px; right: -5px; height: 22px; background: repeating-linear-gradient(90deg, #c44, #c44 15px, #fff 15px, #fff 30px); clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%); }
+        .cafe-sign { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: #2a1a0a; color: #ffd699; font-size: 8px; font-weight: 900; padding: 6px 16px; border: 1px solid #ffd699; letter-spacing: 2px; }
+        .cafe-window { position: absolute; width: 70px; height: 80px; background: #ffd699; border: 2px solid #6b4f10; box-shadow: 0 0 30px rgba(255,214,153,0.4); }
+        .cafe-window::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: #6b4f10; }
+        .cafe-window::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #6b4f10; }
+        .cw1 { top: 45px; left: 25px; } .cw2 { top: 45px; right: 25px; }
+        .cafe-door { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 34px; height: 65px; background: #6b4f10; border: 1px solid #4a3510; }
+        .pavement { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #4a4a5a; border-top: 3px solid #666; }
+        .street-lamp { position: absolute; bottom: 80px; left: 25px; }
+        .lamp-head { width: 18px; height: 10px; background: #444; border-radius: 3px 3px 0 0; margin: 0 auto; }
+        .lamp-light { width: 12px; height: 6px; background: #ffd699; margin: 0 auto; box-shadow: 0 4px 30px rgba(255,214,153,0.8); border-radius: 0 0 5px 5px; }
+        .lamp-pole { width: 4px; height: 70px; background: #555; margin: 0 auto; }
+
+        .text-area { height: 362px; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; }
+        .quiz-header { font-size: 12px; font-weight: 800; color: #ffd699; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .tf-item { display: flex; align-items: center; gap: 10px; background: #2a2a4a; border-radius: 8px; padding: 10px; margin-bottom: 6px; }
+        .tf-statement { flex: 1; font-size: 11px; color: #e8d5b5; font-weight: 600; line-height: 1.5; }
+        .tf-buttons { display: flex; gap: 6px; flex-shrink: 0; }
+        .tf-btn { width: 36px; height: 28px; border: none; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; }
+        .tf-btn.true-btn { background: #2a5a2a; color: #58CC02; }
+        .tf-btn.false-btn { background: #5a2a2a; color: #FF4B4B; }
+        .tf-btn.selected { outline: 2px solid #fff; }
+        .tf-btn.correct-answer { outline: 2px solid #58CC02; }
+        .tf-btn.wrong-answer { outline: 2px solid #FF4B4B; }
+        .tf-result { font-size: 9px; font-weight: 700; margin-top: 2px; display: none; }
+        .tf-item.done .tf-result { display: block; }
+        .tf-item.done .tf-result.correct { color: #58CC02; }
+        .tf-item.done .tf-result.wrong { color: #FF4B4B; }
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 17 / 20</div>
+        <div class="px-scene">
+            <div class="star"></div>
+            <div class="cafe-building">
+                <div class="cafe-awning"></div>
+                <div class="cafe-sign">CAFE</div>
+                <div class="cafe-window cw1"></div>
+                <div class="cafe-window cw2"></div>
+                <div class="cafe-door"></div>
+            </div>
+            <div class="street-lamp"><div class="lamp-head"></div><div class="lamp-light"></div><div class="lamp-pole"></div></div>
+            <div class="pavement"></div>
+        </div>
+        <div class="text-area">
+            <div class="quiz-header">Quick review — True or False?</div>
+
+            <div class="tf-item" id="q1">
+                <div class="tf-statement">"Furnished" means the room is empty.</div>
+                <div class="tf-buttons">
+                    <button class="tf-btn false-btn" onclick="answer('q1',false,false)">F</button>
+                    <button class="tf-btn true-btn" onclick="answer('q1',true,false)">T</button>
+                </div>
+                <div class="tf-result"></div>
+            </div>
+
+            <div class="tf-item" id="q2">
+                <div class="tf-statement">"Deposit" is money you get back when you leave.</div>
+                <div class="tf-buttons">
+                    <button class="tf-btn false-btn" onclick="answer('q2',false,true)">F</button>
+                    <button class="tf-btn true-btn" onclick="answer('q2',true,true)">T</button>
+                </div>
+                <div class="tf-result"></div>
+            </div>
+
+            <div class="tf-item" id="q3">
+                <div class="tf-statement">"PCM" means the price for one month.</div>
+                <div class="tf-buttons">
+                    <button class="tf-btn false-btn" onclick="answer('q3',false,true)">F</button>
+                    <button class="tf-btn true-btn" onclick="answer('q3',true,true)">T</button>
+                </div>
+                <div class="tf-result"></div>
+            </div>
+
+            <div class="tf-item" id="q4">
+                <div class="tf-statement">A "studio" has a separate kitchen and bathroom.</div>
+                <div class="tf-buttons">
+                    <button class="tf-btn false-btn" onclick="answer('q4',false,true)">F</button>
+                    <button class="tf-btn true-btn" onclick="answer('q4',true,false)">T</button>
+                </div>
+                <div class="tf-result"></div>
+            </div>
+
+            <div class="tf-item" id="q5">
+                <div class="tf-statement">A "guarantor" pays if you cannot.</div>
+                <div class="tf-buttons">
+                    <button class="tf-btn false-btn" onclick="answer('q5',false,false)">F</button>
+                    <button class="tf-btn true-btn" onclick="answer('q5',true,true)">T</button>
+                </div>
+                <div class="tf-result"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const answers = { q1: false, q2: true, q3: true, q4: false, q5: true };
+        function answer(qid, chosen, correct) {
+            const q = document.getElementById(qid);
+            if (q.classList.contains('done')) return;
+            q.classList.add('done');
+            const isCorrect = chosen === answers[qid];
+            const result = q.querySelector('.tf-result');
+            result.textContent = isCorrect ? '✅ Correct!' : '❌ Not quite — the answer is ' + (answers[qid] ? 'True' : 'False');
+            result.className = 'tf-result ' + (isCorrect ? 'correct' : 'wrong');
+            q.querySelectorAll('.tf-btn').forEach(b => b.classList.add('correct-answer'));
+        }
+    </script>
+</body>
+</html>

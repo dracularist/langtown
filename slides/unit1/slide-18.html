@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 18 — Story Recap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .px-scene { width: 100%; height: 450px; position: relative; background: linear-gradient(180deg, #2d1b69 0%, #4a2c8a 30%, #1a1a3e 100%); }
+        .timeline { position: absolute; top: 30px; left: 40px; right: 40px; bottom: 30px; }
+        .timeline-line { position: absolute; left: 20px; top: 0; bottom: 0; width: 3px; background: #3a3a6a; border-radius: 2px; }
+        .timeline-item { position: relative; padding-left: 50px; margin-bottom: 20px; }
+        .timeline-dot { position: absolute; left: 10px; top: 4px; width: 22px; height: 22px; background: #2a5a8c; border-radius: 50%; border: 3px solid #4BAAFF; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .timeline-text { font-size: 10px; color: #c8b8a8; font-weight: 600; line-height: 1.5; }
+        .timeline-text strong { color: #e8d5b5; font-weight: 800; }
+        .text-area { height: 362px; background: #1a1a2e; padding: 28px 24px 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .recap-title { font-size: 20px; font-weight: 900; color: #ffd699; margin-bottom: 16px; text-align: center; }
+        .recap-subtitle { font-size: 13px; color: #a8a8c8; font-weight: 600; text-align: center; line-height: 1.7; max-width: 300px; }
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 18 / 20</div>
+        <div class="px-scene">
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">🚂</div>
+                    <div class="timeline-text"><strong>You arrived</strong> — two suitcases, no plan</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">📧</div>
+                    <div class="timeline-text"><strong>Agency cancelled</strong> — your room was gone</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">🔍</div>
+                    <div class="timeline-text"><strong>Learned the words</strong> — flat, studio, bedsit, furnished, unfurnished…</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">📞</div>
+                    <div class="timeline-text"><strong>Called a flat</strong> — deposit + PCM = £1,040 for month one</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">🚫</div>
+                    <div class="timeline-text"><strong>Hit a wall</strong> — no guarantor, no flat</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">☕</div>
+                    <div class="timeline-text"><strong>Survived day one</strong> — tomorrow you go to the university</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-area">
+            <div class="recap-title">What a day.</div>
+            <div class="recap-subtitle">
+                You arrived with nothing, found out your room was cancelled, learned a whole new vocabulary, got rejected by an agent, and ended up in a café at 3.80 coffee.
+                <br><br>
+                Tomorrow: the university office. But tonight — you survived.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

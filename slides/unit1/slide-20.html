@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 20 — Unit 1 Complete!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+
+        .complete-scene { width: 100%; height: 812px; background: linear-gradient(180deg, #1a3a1a 0%, #2a5a2a 50%, #1a1a2e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+
+        .complete-icon { font-size: 60px; margin-bottom: 20px; }
+        .complete-title { font-size: 28px; font-weight: 900; color: #58CC02; margin-bottom: 8px; }
+        .complete-subtitle { font-size: 14px; color: #a8d5a0; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 300px; margin-bottom: 24px; }
+        .stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-number { font-size: 28px; font-weight: 900; color: #ffd699; }
+        .stat-label { font-size: 10px; color: #a8a8c8; font-weight: 600; margin-top: 4px; }
+
+        .vocab-summary { width: 100%; max-width: 300px; margin-bottom: 24px; }
+        .vocab-summary-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .vocab-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .vocab-tag { font-size: 9px; font-weight: 700; padding: 4px 10px; background: #1e1e3a; color: #c8b8a8; border-radius: 6px; }
+
+        .story-summary { width: 100%; max-width: 300px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-bottom: 24px; }
+        .story-summary-label { font-size: 10px; font-weight: 800; color: #ffd699; margin-bottom: 6px; }
+        .story-summary-text { font-size: 11px; color: #a8a8c8; font-weight: 600; line-height: 1.6; font-style: italic; }
+
+        .btn-row { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
+        .btn-primary { background: #58CC02; color: #fff; border: none; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #46a302; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary:active { transform: translateY(3px); box-shadow: none; }
+        .btn-secondary { background: transparent; color: #a8a8c8; border: 2px solid #3a3a6a; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; }
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 20 / 20</div>
+        <div class="complete-scene">
+            <div class="complete-icon">🏠</div>
+            <div class="complete-title">Unit 1 Complete!</div>
+            <div class="complete-subtitle">"Two Suitcases and Nowhere to Sleep"</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">New words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Exercises</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Decisions made</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Rejected call</div>
+                </div>
+            </div>
+
+            <div class="vocab-summary">
+                <div class="vocab-summary-label">Words learned</div>
+                <div class="vocab-tags">
+                    <span class="vocab-tag">flat</span>
+                    <span class="vocab-tag">studio</span>
+                    <span class="vocab-tag">bedsit</span>
+                    <span class="vocab-tag">furnished</span>
+                    <span class="vocab-tag">unfurnished</span>
+                    <span class="vocab-tag">spacious</span>
+                    <span class="vocab-tag">cosy</span>
+                    <span class="vocab-tag">en-suite</span>
+                    <span class="vocab-tag">shared</span>
+                    <span class="vocab-tag">deposit</span>
+                    <span class="vocab-tag">PCM</span>
+                    <span class="vocab-tag">guarantor</span>
+                </div>
+            </div>
+
+            <div class="story-summary">
+                <div class="story-summary-label">Story progress</div>
+                <div class="story-summary-text">
+                    Arrived → Agency cancelled → Learned the words → Found options → Hit the guarantor wall → Survived day one
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-primary">Continue to Unit 2 →</button>
+                <button class="btn-secondary">Review Unit 1</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

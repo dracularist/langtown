@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 19 — Coming Up Next</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Nunito', sans-serif; }
+        .slide-wrapper { width: 375px; height: 812px; position: relative; overflow: hidden; background: #1a1a2e; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .px-scene { width: 100%; height: 450px; position: relative; background: linear-gradient(180deg, #2d1b69 0%, #4a2c8a 30%, #1a1a3e 100%); }
+
+        /* Next unit preview cards */
+        .preview-cards { position: absolute; top: 40px; left: 30px; right: 30px; display: flex; flex-direction: column; gap: 12px; }
+        .preview-card { background: #1e1e3a; border: 2px solid #3a3a6a; border-radius: 12px; padding: 14px; }
+        .preview-card.locked { opacity: 0.5; border-style: dashed; }
+        .preview-card.current { border-color: #58CC02; }
+        .preview-card-label { font-size: 8px; font-weight: 800; color: #ffd699; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .preview-card.current .preview-card-label { color: #58CC02; }
+        .preview-card-title { font-size: 13px; font-weight: 800; color: #e8d5b5; margin-bottom: 4px; }
+        .preview-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
+
+        .text-area { height: 362px; background: #1a1a2e; padding: 28px 24px 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .next-title { font-size: 18px; font-weight: 900; color: #4BAAFF; margin-bottom: 8px; }
+        .next-desc { font-size: 13px; color: #a8a8c8; text-align: center; line-height: 1.7; max-width: 300px; margin-bottom: 20px; }
+        .btn-next { background: #58CC02; color: #fff; border: none; padding: 14px 30px; border-radius: 12px; font-size: 14px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #46a302; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-next:active { transform: translateY(3px); box-shadow: none; }
+        .slide-counter { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); color: #666; font-size: 11px; font-weight: 700; z-index: 100; background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 19 / 20</div>
+        <div class="px-scene">
+            <div class="preview-cards">
+                <div class="preview-card current">
+                    <div class="preview-card-label">✅ Completed</div>
+                    <div class="preview-card-title">Unit 1 — "Two Suitcases and Nowhere to Sleep"</div>
+                    <div class="preview-card-desc">You learned to read rental listings, understand prices, and deal with the guarantor problem.</div>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-card-label">Next</div>
+                    <div class="preview-card-title">Unit 2 — "The View That Wasn't What It Seemed"</div>
+                    <div class="preview-card-desc">You go to the university office for help — then visit your first flat in person. The photos were… misleading.</div>
+                </div>
+                <div class="preview-card locked">
+                    <div class="preview-card-label">Locked</div>
+                    <div class="preview-card-title">Unit 3 — "Mrs. Fletcher's Fine Print"</div>
+                    <div class="preview-card-desc">The contract arrives. It's 12 pages long. Every word looks important. Which ones actually are?</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-area">
+            <div class="next-title">Coming up in Unit 2…</div>
+            <div class="next-desc">
+                You visit your first flat. The photos showed a bright, spacious room. The real thing has a window facing a brick wall and a landlord who says "it gets darker in winter."
+            </div>
+            <button class="btn-next">Continue to Unit 2 →</button>
+        </div>
+    </div>
+</body>
+</html>
