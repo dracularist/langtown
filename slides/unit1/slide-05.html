@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 5 — Rental Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #111;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; font-family: 'Nunito', sans-serif;
+        }
+        .slide-wrapper {
+            width: 375px; height: 812px; position: relative;
+            overflow: hidden; background: #1a1a2e;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .px-scene {
+            width: 100%; height: 450px; position: relative;
+            background: linear-gradient(180deg, #2d1b69 0%, #4a2c8a 20%, #7b4f6e 40%, #c47451 55%, #e8a87c 65%);
+        }
+        .star {
+            position: absolute; width: 2px; height: 2px; background: #fff;
+            box-shadow: 30px 20px 0 #fff, 80px 40px 0 #fff, 150px 15px 0 #fff,
+                200px 50px 0 #fff, 280px 30px 0 #fff;
+        }
+        .station-building {
+            position: absolute; bottom: 100px; left: 30px;
+            width: 160px; height: 120px; background: #4a3f35; border: 2px solid #3a2f25;
+        }
+        .station-building::before {
+            content: ''; position: absolute; top: -30px; left: -10px;
+            width: 180px; height: 30px; background: #3a2f25;
+            clip-path: polygon(10% 100%, 50% 0%, 90% 100%);
+        }
+        .station-sign {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            background: #1a3a5c; color: #ffd699; font-size: 7px; font-weight: 900;
+            padding: 5px 12px; letter-spacing: 1px; border: 1px solid #2a5a8c;
+        }
+        .station-window {
+            position: absolute; width: 20px; height: 24px;
+            background: #ffd699; border: 1px solid #3a2f25;
+            box-shadow: 0 0 8px rgba(255,214,153,0.6);
+        }
+        .sw1 { top: 20px; left: 18px; } .sw2 { top: 20px; left: 58px; }
+        .sw3 { top: 20px; left: 98px; }
+        .street-lamp { position: absolute; bottom: 100px; right: 70px; }
+        .lamp-head { width: 18px; height: 10px; background: #444; border-radius: 3px 3px 0 0; margin: 0 auto; }
+        .lamp-light {
+            width: 12px; height: 6px; background: #ffd699; margin: 0 auto;
+            box-shadow: 0 4px 30px rgba(255,214,153,0.8);
+            border-radius: 0 0 5px 5px;
+        }
+        .lamp-pole { width: 4px; height: 70px; background: #555; margin: 0 auto; }
+        .ground {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 100px;
+            background: #3a3a3a; border-top: 3px solid #555;
+        }
+
+        /* Phone with rental website */
+        .phone-overlay {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            width: 160px; height: 280px; background: #f5f5f5;
+            border: 3px solid #444; border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            overflow: hidden; z-index: 10;
+        }
+        .phone-notch {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 16px; background: #444; border-radius: 0 0 14px 14px; z-index: 11;
+        }
+        .phone-status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 14px 2px; font-size: 7px; color: #666; font-weight: 700;
+            background: #f5f5f5;
+        }
+        .phone-browser-bar {
+            background: #e0e0e0; padding: 4px 8px; display: flex; align-items: center; gap: 4px;
+        }
+        .browser-url {
+            flex: 1; background: #fff; border-radius: 4px; padding: 3px 6px;
+            font-size: 5px; color: #666; overflow: hidden; white-space: nowrap;
+        }
+        .phone-web-content { padding: 6px; }
+        .web-header {
+            background: #2a5a8c; color: #fff; font-size: 7px; font-weight: 800;
+            padding: 5px 6px; margin: -6px -6px 6px -6px;
+        }
+        .filter-row {
+            display: flex; gap: 3px; margin-bottom: 6px;
+        }
+        .filter-chip {
+            font-size: 5px; font-weight: 700; padding: 3px 6px;
+            border-radius: 3px; background: #e8e8e8; color: #555;
+        }
+        .filter-chip.active { background: #2a5a8c; color: #fff; }
+        .listing-card {
+            background: #fff; border-radius: 6px; padding: 6px;
+            margin-bottom: 4px; border: 1px solid #ddd;
+        }
+        .listing-price {
+            font-size: 7px; font-weight: 900; color: #2a5a8c;
+        }
+        .listing-desc {
+            font-size: 5px; color: #666; line-height: 1.4; margin-top: 2px;
+        }
+        .listing-keyword {
+            color: #c44; font-weight: 800;
+        }
+        .phone-home {
+            position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+            width: 45px; height: 4px; background: #ccc; border-radius: 2px;
+        }
+
+        .text-area {
+            height: 362px; background: #1a1a2e; padding: 28px 24px 30px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .narrator {
+            color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 16px;
+        }
+        .narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
+        .thought {
+            color: #a8a8c8; font-size: 14px; font-weight: 600; font-style: italic;
+            border-left: 3px solid #555; padding-left: 14px; margin: 12px 0; line-height: 1.7;
+        }
+        .slide-counter {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            color: #666; font-size: 11px; font-weight: 700; z-index: 100;
+            background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 5 / 20</div>
+        <div class="px-scene">
+            <div class="star"></div>
+            <div class="station-building">
+                <div class="station-sign">OAKFIELD STATION</div>
+                <div class="station-window sw1"></div>
+                <div class="station-window sw2"></div>
+                <div class="station-window sw3"></div>
+            </div>
+            <div class="street-lamp">
+                <div class="lamp-head"></div>
+                <div class="lamp-light"></div>
+                <div class="lamp-pole"></div>
+            </div>
+            <div class="ground"></div>
+
+            <div class="phone-overlay">
+                <div class="phone-notch"></div>
+                <div class="phone-status-bar">
+                    <span>10%</span>
+                    <span>18:47</span>
+                    <div style="width:18px;height:9px;border:1px solid #666;border-radius:1px;position:relative;">
+                        <div style="position:absolute;left:1px;top:1px;bottom:1px;width:3px;background:#f44;border-radius:1px;"></div>
+                        <div style="position:absolute;right:-3px;top:1px;width:2px;height:5px;background:#666;border-radius:0 1px 1px 0;"></div>
+                    </div>
+                </div>
+                <div class="phone-browser-bar">
+                    <div class="browser-url">rightmove.co.uk/search...</div>
+                </div>
+                <div class="phone-web-content">
+                    <div class="web-header">Find a place to rent</div>
+                    <div class="filter-row">
+                        <div class="filter-chip active">Flat</div>
+                        <div class="filter-chip">Studio</div>
+                        <div class="filter-chip">Bedsit</div>
+                    </div>
+                    <div class="listing-card">
+                        <div class="listing-price">650 pcm</div>
+                        <div class="listing-desc"><span class="listing-keyword">Spacious</span> 1-bed <span class="listing-keyword">flat</span>, <span class="listing-keyword">furnished</span>. Bills included.</div>
+                    </div>
+                    <div class="listing-card">
+                        <div class="listing-price">520 pcm</div>
+                        <div class="listing-desc"><span class="listing-keyword">Cosy</span> <span class="listing-keyword">studio</span>, <span class="listing-keyword">unfurnished</span>. Deposit required.</div>
+                    </div>
+                    <div class="listing-card">
+                        <div class="listing-price">380 pcm</div>
+                        <div class="listing-desc"><span class="listing-keyword">Bedsit</span>, <span class="listing-keyword">shared</span> kitchen, <span class="listing-keyword">en-suite</span> bathroom.</div>
+                    </div>
+                </div>
+                <div class="phone-home"></div>
+            </div>
+        </div>
+        <div class="text-area">
+            <div class="narrator">
+                You open a rental website.<br>
+                The page loads. Dozens of listings appear.<br>
+                But the words are all… different.
+            </div>
+            <div class="thought">
+                "Every word looks simple. But together they don't make sense."
+            </div>
+        </div>
+    </div>
+</body>
+</html>

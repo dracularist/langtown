@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 3 — The Email</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #111;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; font-family: 'Nunito', sans-serif;
+        }
+        .slide-wrapper {
+            width: 375px; height: 812px; position: relative;
+            overflow: hidden; background: #2a2a3a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .px-scene {
+            width: 100%; height: 450px; position: relative;
+            background: #2a2a3a; display: flex; align-items: center; justify-content: center;
+        }
+        .email-overlay {
+            width: 310px; background: #f5f0e8; border: 2px solid #8b7355;
+            border-radius: 4px; padding: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .email-header {
+            border-bottom: 1px solid #8b7355; padding-bottom: 12px; margin-bottom: 12px;
+        }
+        .email-from { color: #4a3510; font-size: 8px; font-weight: 700; margin-bottom: 4px; }
+        .email-subject { color: #4a3510; font-size: 8px; font-weight: 800; }
+        .email-body { color: #3a2a1a; font-size: 8px; line-height: 2.2; }
+        .email-highlight { color: #c44; font-weight: 900; }
+        .text-area {
+            height: 362px; background: #1a1a2e; padding: 28px 24px 30px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .narrator {
+            color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 16px;
+        }
+        .narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
+        .thought {
+            color: #a8a8c8; font-size: 14px; font-weight: 600; font-style: italic;
+            border-left: 3px solid #555; padding-left: 14px; margin: 12px 0; line-height: 1.7;
+        }
+        .slide-counter {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            color: #666; font-size: 11px; font-weight: 700; z-index: 100;
+            background: rgba(26,26,46,0.8); padding: 4px 12px; border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-wrapper">
+        <div class="slide-counter">Slide 3 / 20</div>
+        <div class="px-scene">
+            <div class="email-overlay">
+                <div class="email-header">
+                    <div class="email-from">From: Oakfield Housing Agency</div>
+                    <div class="email-subject">Subject: Accommodation Update</div>
+                </div>
+                <div class="email-body">
+                    Dear Student,<br><br>
+                    We are sorry to inform you that your accommodation has been<br>
+                    <span class="email-highlight">cancelled</span>.<br><br>
+                    The landlord no longer accepts international students at this property.<br><br>
+                    You may need to find your own place.<br><br>
+                    Best regards,<br>
+                    Oakfield Housing Agency
+                </div>
+            </div>
+        </div>
+        <div class="text-area">
+            <div class="narrator">
+                You open your email and read the letter<br>
+                from your <em>housing agency</em> again.
+            </div>
+            <div class="thought">
+                "Cancelled? They took my deposit last month…"
+            </div>
+        </div>
+    </div>
+</body>
+</html>

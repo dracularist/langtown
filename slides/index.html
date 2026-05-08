@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1 — Slide Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e;
+            padding: 30px;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ffd699;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .slide-thumb {
+            background: #2a2a4a;
+            border-radius: 12px;
+            padding: 12px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #3a3a6a;
+        }
+        .slide-thumb:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            border-color: #5a5a8a;
+        }
+        .slide-number {
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffd699;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .slide-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e8d5b5;
+            margin-bottom: 4px;
+        }
+        .slide-type {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .type-story { background: #2a5a2a; color: #58CC02; }
+        .type-question { background: #2a2a5a; color: #4BAAFF; }
+        .type-quiz { background: #5a2a5a; color: #CE82FF; }
+        .type-recap { background: #5a4a2a; color: #FFC800; }
+        .type-decision { background: #5a2a2a; color: #FF4B4B; }
+        .placeholder {
+            color: #555;
+            font-size: 11px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Accommodation — Unit 1</h1>
+    <p class="subtitle">"Two Suitcases and Nowhere to Sleep" — Click a slide to open it</p>
+
+    <div class="gallery">
+        <a href="unit1/slide-01.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 01</div>
+            <div class="slide-title">Station at Dusk</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+
+        <a href="unit1/slide-02.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 02</div>
+            <div class="slide-title">Priya's Message</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+
+        <a href="unit1/slide-03.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 03</div>
+            <div class="slide-title">The Email</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+
+        <a href="unit1/slide-04.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 04</div>
+            <div class="slide-title">Understanding Check</div>
+            <span class="slide-type type-question">Question</span>
+        </a>
+
+        <a href="unit1/slide-05.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 05</div>
+            <div class="slide-title">Rental Website</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+
+        <a href="#" class="slide-thumb">
+            <div class="slide-number">Slide 06</div>
+            <div class="slide-title">Vocab Quiz 1</div>
+            <span class="slide-type type-quiz">Quiz</span>
+            <div class="placeholder">Coming soon</div>
+        </a>
+
+        <a href="#" class="slide-thumb">
+            <div class="slide-number">Slide 07–14</div>
+            <div class="slide-title">More scenes & quizzes</div>
+            <div class="placeholder">Coming soon</div>
+        </a>
+
+        <a href="unit1/slide-15.html" class="slide-thumb" target="_blank">
+            <div class="slide-number">Slide 15</div>
+            <div class="slide-title">Cafe at Night</div>
+            <span class="slide-type type-story">Story</span>
+        </a>
+
+        <a href="#" class="slide-thumb">
+            <div class="slide-number">Slide 16–20</div>
+            <div class="slide-title">Recap & Complete</div>
+            <div class="placeholder">Coming soon</div>
+        </a>
+    </div>
+</body>
+</html>
