@@ -1054,11 +1054,14 @@ body {
     inset: 0;
     pointer-events: none;
 }
-.unit-overlays > * {
-    pointer-events: auto;
+/* Override: non-interactive overlay elements should NOT catch clicks */
+.unit-phone, .unit-email, .unit-call, .unit-call-ended, .unit-rejected,
+.unit-calc, .unit-bank-card, .unit-receipt, .unit-thought-bubble,
+.unit-flat-cards, .unit-timeline, .unit-preview-cards {
+    pointer-events: none;
 }
 
-/* Tap layer covers entire screen - below overlays in DOM order */
+/* Tap layer covers entire screen - MUST have pointer-events: auto since parent has none */
 .unit-tap-layer {
     position: absolute;
     top: 0;
@@ -1067,6 +1070,7 @@ body {
     bottom: 0;
     z-index: 10;
     cursor: pointer;
+    pointer-events: auto;
 }
 
 /* Sequential reveal system */

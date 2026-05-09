@@ -430,10 +430,8 @@ function renderSlide(idx) {
         html += renderSceneBackground(slide, sc);
         html += '</div>';
 
-        // Count overlays that need sequential reveal
+        // Count overlays that need sequential reveal (phone/email are always visible, NOT counted)
         let overlayCount = 0;
-        if (slide.email) overlayCount++;
-        if (slide.phone) overlayCount++;
         if (slide.phoneCall) overlayCount++;
         if (slide.callEnded) overlayCount++;
         if (slide.rejected) overlayCount++;
@@ -449,10 +447,9 @@ function renderSlide(idx) {
         state.totalRevealSteps = needsReveal ? overlayCount + 1 : 0;
 
         html += '<div class="unit-overlays">';
+        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap(event)"></div>';
         html += renderOverlays(slide);
         html += '</div>';
-
-        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap(event)"></div>';
 
         const textCls = needsReveal ? 'unit-text-area hidden-overlay' : 'unit-text-area';
         html += '<div class="' + textCls + '" id="unit-text-area" onclick="handleSlideTap(event)">';
