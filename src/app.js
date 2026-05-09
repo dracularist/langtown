@@ -426,7 +426,7 @@ function renderSlide(idx) {
     if (isComplete) { html += renderComplete(slide); }
     else {
         const sc = state.unitData.scenes[slide.scene] || {};
-        html += '<div class="unit-scene sky-' + (sc.sky || 'dark') + '">';
+        html += '<div class="unit-scene sky-' + (sc.sky || 'dark') + '" onclick="handleSlideTap(event)">';
         html += renderSceneBackground(slide, sc);
         html += '</div>';
 

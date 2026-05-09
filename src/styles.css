@@ -1059,16 +1059,14 @@ body {
     pointer-events: auto;
 }
 
-/* Tap layer covers scene area only */
+/* Tap layer covers entire screen area */
 .unit-tap-layer {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 30vh;
-    min-height: 150px;
-    max-height: 260px;
-    z-index: 5;
+    bottom: 0;
+    z-index: 2;
     cursor: pointer;
 }
 
