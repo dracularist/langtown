@@ -476,6 +476,7 @@ function renderSlide(idx) {
 
 function handleSlideTap(e) {
     if (e) e.stopPropagation();
+    console.log('[tap] slide', state.currentSlide, 'revealIndex', state.revealIndex, 'totalSteps', state.totalRevealSteps, 'blocked', state.slideBlocked);
     if (state.slideBlocked) return;
     const slide = state.unitData.slides[state.currentSlide];
     const isQuestion = slide.question || slide.quiz || slide.quizTF;
@@ -486,6 +487,7 @@ function handleSlideTap(e) {
     // If there are more elements to reveal, reveal the current one
     if (state.revealIndex < state.totalRevealSteps - 1) {
         const ri = state.revealIndex;
+        console.log('[tap] revealing step', ri);
         // Show overlays with this reveal index
         document.querySelectorAll('.overlay-step.hidden-overlay[data-reveal="' + ri + '"]').forEach(el => {
             el.classList.add('revealed');
