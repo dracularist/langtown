@@ -1292,8 +1292,8 @@ body {
 .unit-preview-card-title { font-size: 13px; font-weight: 800; color: #e8d5b5; margin-bottom: 4px; }
 .unit-preview-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
 
-/* Text area - must be positioned above overlays container */
-.unit-text-area { flex: 1; min-height: 0; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; position: relative; z-index: 20; }
+/* Text area - must be positioned ABOVE overlays (z-index 100) to receive clicks */
+.unit-text-area { flex: 1; min-height: 0; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; position: relative; z-index: 200; }
 .unit-narrator { color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 10px; }
 .unit-narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
 .unit-dialogue-box { background: #2a2a4a; border: 1px solid #3a3a6a; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
