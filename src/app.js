@@ -133,6 +133,9 @@ let state = {
     unitListUnitIndex: null,
     // Fine-grained progress (quiz results, wrong answers, etc.)
     quizResults: {},  // { quizId: { correct, attempts, lastAnswer } }
+    // Sequential reveal state
+    revealIndex: 0,  // how many elements have been revealed on current slide
+    totalRevealSteps: 0,  // total reveal steps on current slide
 };
 
 // Unit sub-node definitions for Accommodation Unit 1
@@ -409,8 +412,10 @@ function renderSlide(idx) {
     state.currentSlide = idx;
     state.slideAnswered = false;
     state.slideBlocked = false;
+    state.revealIndex = 0;
+    state.totalRevealSteps = 0;
+
     const slide = state.unitData.slides[idx];
-    const scene = state.unitData.slides[idx] ? (state.unitData.scenes[state.unitData.slides[idx].scene] || {}) : {};
     const el = $('#unit-content');
     let html = '';
 
@@ -424,11 +429,33 @@ function renderSlide(idx) {
         html += '<div class="unit-scene sky-' + (sc.sky || 'dark') + '">';
         html += renderSceneBackground(slide, sc);
         html += '</div>';
+
+        // Count overlays that need sequential reveal
+        let overlayCount = 0;
+        if (slide.email) overlayCount++;
+        if (slide.phone) overlayCount++;
+        if (slide.phoneCall) overlayCount++;
+        if (slide.callEnded) overlayCount++;
+        if (slide.rejected) overlayCount++;
+        if (slide.calculator) overlayCount++;
+        if (slide.bankCard) overlayCount++;
+        if (slide.receipt) overlayCount++;
+        if (slide.thoughtBubble) overlayCount++;
+        if (slide.timeline) overlayCount++;
+        if (slide.unitCards) overlayCount++;
+
+        // If no overlays, text is visible from the start
+        const needsReveal = overlayCount > 0;
+        state.totalRevealSteps = needsReveal ? overlayCount + 1 : 0;
+
         html += '<div class="unit-overlays">';
         html += renderOverlays(slide);
         html += '</div>';
-        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap()"></div>';
-        html += '<div class="unit-text-area" onclick="handleSlideTap()">';
+
+        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap(event)"></div>';
+
+        const textCls = needsReveal ? 'unit-text-area hidden-overlay' : 'unit-text-area';
+        html += '<div class="' + textCls + '" id="unit-text-area" onclick="handleSlideTap(event)">';
         html += renderSlideContent(slide, isQuestion, isDecision);
         html += '</div>';
     }
@@ -440,7 +467,7 @@ function renderSlide(idx) {
     const fill = $('#unit-progress-fill');
     if (fill) fill.style.width = pct + '%';
 
-    // Hide nav arrows during slides, show only for tap hint
+    // Hide nav arrows during slides
     const prevBtn = $('#unit-prev-btn');
     const nextBtn = $('#unit-next-btn');
     if (prevBtn) prevBtn.style.display = 'none';
@@ -455,8 +482,38 @@ function handleSlideTap(e) {
     if (state.slideBlocked) return;
     const slide = state.unitData.slides[state.currentSlide];
     const isQuestion = slide.question || slide.quiz || slide.quizTF;
+
+    // If question slide and not answered yet, block
     if (isQuestion && !state.slideAnswered) return;
+
+    // If there are more elements to reveal, reveal the next one
+    if (state.revealIndex < state.totalRevealSteps - 1) {
+        state.revealIndex++;
+        revealNextElement();
+        return;
+    }
+
+    // All revealed, advance to next slide
     advanceSlide();
+}
+
+function revealNextElement() {
+    // Show overlays with this reveal index
+    document.querySelectorAll('.overlay-step.hidden-overlay[data-reveal="' + state.revealIndex + '"]').forEach(el => {
+        el.classList.add('revealed');
+        el.classList.remove('hidden-overlay');
+    });
+    // Show text area if this is the text reveal step
+    if (state.revealIndex === state.totalRevealSteps - 1) {
+        const textArea = $('#unit-text-area');
+        if (textArea) {
+            textArea.classList.add('revealed');
+            textArea.classList.remove('hidden-overlay');
+        }
+        // Show tap hint for question slides
+        const qHint = document.getElementById('q-tap-hint');
+        if (qHint) qHint.style.display = 'block';
+    }
 }
 
 function applyReveal(slide, isQuestion, isDecision) { /* no-op in simple mode */ }
@@ -504,84 +561,96 @@ function renderSceneBackground(slide, scene) {
 
 function renderOverlays(slide) {
     let h = '';
+    let ri = 0;
 
     // Phone
     if (slide.phone) {
         const p = slide.phone;
+        let inner = '';
         if (p.isWebsite) {
-            h += '<div class="unit-phone wide website"><div class="unit-phone-notch"></div>';
-            h += '<div class="unit-phone-status"><span>10%</span><span>18:50</span><div class="unit-phone-battery"></div></div>';
-            h += '<div class="unit-browser-bar"><div class="unit-browser-url">' + (p.url || '') + '</div></div>';
-            if (p.header) h += '<div class="unit-web-header">' + p.header + '</div>';
-            if (p.filters) { h += '<div style="padding:4px 6px;display:flex;gap:3px;">'; p.filters.forEach((f, i) => { h += '<div style="font-size:5px;font-weight:700;padding:3px 6px;border-radius:3px;background:' + (i === 0 ? '#2a5a8c;color:#fff;' : '#e8e8e8;color:#555;') + '">' + f + '</div>'; }); h += '</div>'; }
-            if (p.listings) { h += '<div style="padding:4px 6px;">'; p.listings.forEach(l => { h += '<div class="unit-listing-card">'; if (l.icon) h += '<div class="unit-listing-icon">' + l.icon + '</div>'; h += '<div class="unit-listing-price">' + l.price + '</div><div class="unit-listing-desc">' + highlightKeywords(l.desc, l.keywords) + '</div></div>'; }); h += '</div>'; }
-            h += '<div class="unit-phone-home-el"></div></div>';
+            inner += '<div class="unit-phone wide website"><div class="unit-phone-notch"></div>';
+            inner += '<div class="unit-phone-status"><span>10%</span><span>18:50</span><div class="unit-phone-battery"></div></div>';
+            inner += '<div class="unit-browser-bar"><div class="unit-browser-url">' + (p.url || '') + '</div></div>';
+            if (p.header) inner += '<div class="unit-web-header">' + p.header + '</div>';
+            if (p.filters) { inner += '<div style="padding:4px 6px;display:flex;gap:3px;">'; p.filters.forEach((f, i) => { inner += '<div style="font-size:5px;font-weight:700;padding:3px 6px;border-radius:3px;background:' + (i === 0 ? '#2a5a8c;color:#fff;' : '#e8e8e8;color:#555;') + '">' + f + '</div>'; }); inner += '</div>'; }
+            if (p.listings) { inner += '<div style="padding:4px 6px;">'; p.listings.forEach(l => { inner += '<div class="unit-listing-card">'; if (l.icon) inner += '<div class="unit-listing-icon">' + l.icon + '</div>'; inner += '<div class="unit-listing-price">' + l.price + '</div><div class="unit-listing-desc">' + highlightKeywords(l.desc, l.keywords) + '</div></div>'; }); inner += '</div>'; }
+            inner += '<div class="unit-phone-home-el"></div></div>';
         } else {
             const wide = p.messages && p.messages.some(m => m.length > 40);
-            h += '<div class="unit-phone' + (wide ? ' wide' : '') + '"><div class="unit-phone-notch"></div>';
-            h += '<div class="unit-phone-status"><span>9%</span><span>18:52</span></div>';
-            h += '<div class="unit-chat-avatar"><div class="unit-chat-avatar-circle"></div><div class="unit-chat-name">' + p.from + '</div></div>';
-            p.messages.forEach((m, i) => { let cls = 'unit-chat-bubble'; if (p.warn && i >= p.warn - 1) cls += ' warn'; if (p.urgent && i >= p.urgent - 1) cls += ' urgent'; if (p.review) cls += ' review'; h += '<div class="' + cls + '">' + m + '</div>'; });
-            if (p.review) p.review.forEach(r => { h += '<div class="unit-chat-bubble review">' + r + '</div>'; });
-            h += '<div class="unit-phone-home-el"></div></div>';
+            inner += '<div class="unit-phone' + (wide ? ' wide' : '') + '"><div class="unit-phone-notch"></div>';
+            inner += '<div class="unit-phone-status"><span>9%</span><span>18:52</span></div>';
+            inner += '<div class="unit-chat-avatar"><div class="unit-chat-avatar-circle"></div><div class="unit-chat-name">' + p.from + '</div></div>';
+            p.messages.forEach((m, i) => { let cls = 'unit-chat-bubble'; if (p.warn && i >= p.warn - 1) cls += ' warn'; if (p.urgent && i >= p.urgent - 1) cls += ' urgent'; if (p.review) cls += ' review'; inner += '<div class="' + cls + '">' + m + '</div>'; });
+            if (p.review) p.review.forEach(r => { inner += '<div class="unit-chat-bubble review">' + r + '</div>'; });
+            inner += '<div class="unit-phone-home-el"></div></div>';
         }
+        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '">' + inner + '</div>';
+        ri++;
     }
 
     // Email
     if (slide.email) {
         const e = slide.email;
-        h += '<div class="unit-email"><div class="unit-email-header"><div class="unit-email-from">From: ' + e.from + '</div><div class="unit-email-subject">Subject: ' + e.subject + '</div></div>';
-        h += '<div class="unit-email-body">' + (e.highlight ? e.body.replace(e.highlight, '<span class="unit-email-hl">' + e.highlight + '</span>') : e.body) + '</div></div>';
+        let inner = '<div class="unit-email"><div class="unit-email-header"><div class="unit-email-from">From: ' + e.from + '</div><div class="unit-email-subject">Subject: ' + e.subject + '</div></div>';
+        inner += '<div class="unit-email-body">' + (e.highlight ? e.body.replace(e.highlight, '<span class="unit-email-hl">' + e.highlight + '</span>') : e.body) + '</div></div>';
+        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '">' + inner + '</div>';
+        ri++;
     }
 
     // Call
     if (slide.phoneCall) {
         const c = slide.phoneCall;
-        h += '<div class="unit-call"><div class="unit-phone-notch"></div><div class="unit-call-screen"><div class="unit-call-avatar">📞</div><div class="unit-call-name">' + c.title + '</div><div class="unit-call-status">' + c.duration + '</div>';
-        c.dialogue.forEach(d => { h += '<div class="unit-call-dialogue' + (d.speaker === 'You' ? ' you' : '') + '"><div class="speaker">' + d.speaker + '</div><div class="text">' + d.text + '</div></div>'; });
-        h += '</div><div class="unit-phone-home-el"></div></div>';
+        let inner = '<div class="unit-call"><div class="unit-phone-notch"></div><div class="unit-call-screen"><div class="unit-call-avatar">📞</div><div class="unit-call-name">' + c.title + '</div><div class="unit-call-status">' + c.duration + '</div>';
+        c.dialogue.forEach(d => { inner += '<div class="unit-call-dialogue' + (d.speaker === 'You' ? ' you' : '') + '"><div class="speaker">' + d.speaker + '</div><div class="text">' + d.text + '</div></div>'; });
+        inner += '</div><div class="unit-phone-home-el"></div></div>';
+        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '">' + inner + '</div>';
+        ri++;
     }
 
     // Call ended
-    if (slide.callEnded) h += '<div class="unit-call-ended"><div class="unit-call-ended-icon">📵</div><div class="unit-call-ended-text">Call Ended</div><div class="unit-call-ended-time">Duration: 1:23</div></div>';
-    if (slide.rejected) h += '<div class="unit-rejected">REJECTED</div>';
+    if (slide.callEnded) { h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-call-ended"><div class="unit-call-ended-icon">📵</div><div class="unit-call-ended-text">Call Ended</div><div class="unit-call-ended-time">Duration: 1:23</div></div></div>'; ri++; }
+    if (slide.rejected) { h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-rejected">REJECTED</div></div>'; ri++; }
 
     // Calculator
-    if (slide.calculator) h += '<div class="unit-calc"><div class="unit-calc-label">Your calculator</div><div class="unit-calc-display">' + slide.calculator.expression + '<br><small>' + slide.calculator.result + '</small></div></div>';
+    if (slide.calculator) { h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-calc"><div class="unit-calc-label">Your calculator</div><div class="unit-calc-display">' + slide.calculator.expression + '<br><small>' + slide.calculator.result + '</small></div></div></div>'; ri++; }
 
     // Bank card
-    if (slide.bankCard) { const b = slide.bankCard; h += '<div class="unit-bank-card"><div class="unit-bank-logo">' + b.bank + '</div><div class="unit-bank-balance-label">Current balance</div><div class="unit-bank-balance">' + b.balance + '</div><div class="unit-bank-name">' + b.cardNumber + '</div></div>'; }
+    if (slide.bankCard) { const b = slide.bankCard; h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-bank-card"><div class="unit-bank-logo">' + b.bank + '</div><div class="unit-bank-balance-label">Current balance</div><div class="unit-bank-balance">' + b.balance + '</div><div class="unit-bank-name">' + b.cardNumber + '</div></div></div>'; ri++; }
 
     // Receipt
-    if (slide.receipt) h += '<div class="unit-receipt">' + slide.receipt.item + '<br>—————<br><div class="unit-receipt-total">' + slide.receipt.total + '</div></div>';
+    if (slide.receipt) { h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-receipt">' + slide.receipt.item + '<br>—————<br><div class="unit-receipt-total">' + slide.receipt.total + '</div></div></div>'; ri++; }
 
     // Thought bubble
-    if (slide.thoughtBubble) h += '<div class="unit-thought-bubble">' + slide.thoughtBubble.replace(/\n/g, '<br>') + '</div>';
+    if (slide.thoughtBubble) { h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-thought-bubble">' + slide.thoughtBubble.replace(/\n/g, '<br>') + '</div></div>'; ri++; }
 
     // Decision flat cards
     if (slide.type === 'decision' && slide.decisions && slide.decisions[0].price) {
+        h += '<div class="overlay-step" data-reveal="' + ri + '">';
         h += '<div class="unit-flat-cards">';
         slide.decisions.forEach(d => { h += '<div class="unit-flat-card" data-decision="' + d.letter + '"><div class="unit-flat-card-header"><div class="unit-flat-card-price">' + d.price + '</div><div class="unit-flat-card-emoji">' + d.emoji + '</div></div><div class="unit-flat-card-title">' + d.title + '</div><div class="unit-flat-card-desc">' + d.desc + '</div><div class="unit-flat-card-tag unit-tag-' + d.tagType + '">' + d.tag + '</div></div>'; });
-        h += '</div>';
+        h += '</div></div>';
+        ri++;
     }
 
     // Timeline
     if (slide.timeline) {
-        h += '<div class="unit-timeline"><div class="unit-timeline-line"></div>';
+        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-timeline"><div class="unit-timeline-line"></div>';
         slide.timeline.forEach(t => { h += '<div class="unit-timeline-item"><div class="unit-timeline-dot">' + t.emoji + '</div><div class="unit-timeline-text"><strong>' + t.text.split('—')[0].trim() + '</strong>' + (t.text.includes('—') ? '—' + t.text.split('—')[1] : '') + '</div></div>'; });
-        h += '</div>';
+        h += '</div></div>';
+        ri++;
     }
 
     // Preview cards
     if (slide.unitCards) {
-        h += '<div class="unit-preview-cards">';
+        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '"><div class="unit-preview-cards">';
         slide.unitCards.forEach(c => {
             const locked = c.status === 'locked' ? ' locked' : c.status === 'next' ? '' : ' current';
             const labelCls = c.status === 'completed' ? ' completed' : c.status === 'next' ? ' next' : ' locked-label';
             const label = c.status === 'completed' ? '✅ Completed' : c.status === 'next' ? 'Next' : 'Locked';
             h += '<div class="unit-preview-card' + locked + '"><div class="unit-preview-card-label' + labelCls + '">' + label + '</div><div class="unit-preview-card-title">' + c.title + '</div><div class="unit-preview-card-desc">' + c.desc + '</div></div>';
         });
-        h += '</div>';
+        h += '</div></div>';
+        ri++;
     }
 
     return h;
@@ -629,8 +698,8 @@ function renderSlideContent(slide, isQuestion) {
         h += '<div class="unit-quiz-header">' + c.quizHeader + '</div>';
         slide.quizTF.forEach((q, i) => {
             h += '<div class="unit-tf-item" id="tf-' + i + '"><div class="unit-tf-statement">' + q.statement + '</div>';
-            h += '<div class="unit-tf-buttons"><button class="unit-tf-btn true-btn" onclick="tfAnswer(' + i + ',' + q.answer + ',true)">T</button>';
-            h += '<button class="unit-tf-btn false-btn" onclick="tfAnswer(' + i + ',' + q.answer + ',false)">F</button></div>';
+            h += '<div class="unit-tf-buttons"><button class="unit-tf-btn true-btn">T</button>';
+            h += '<button class="unit-tf-btn false-btn">F</button></div>';
             h += '<div class="unit-tf-result"></div></div>';
         });
     }
@@ -783,10 +852,16 @@ function attachSlideHandlers(slide, isQuestion) {
             result.textContent = isCorrect ? '✅ Correct!' : '❌ Not quite — the answer is ' + (q.answer ? 'True' : 'False');
             result.className = 'unit-tf-result ' + (isCorrect ? 'correct' : 'wrong');
             recordQuizResult('tf-' + state.currentSlide + '-' + idx, { correct: isCorrect, chosen: this.classList.contains('true-btn') ? 'True' : 'False' });
-            state.slideAnswered = true;
-            state.slideBlocked = false;
-            const hint3 = document.getElementById('q-tap-hint');
-            if (hint3) hint3.style.display = 'block';
+
+            // Check if ALL T/F items are answered
+            const allItems = document.querySelectorAll('.unit-tf-item');
+            const allDone = [...allItems].every(item => item.classList.contains('done'));
+            if (allDone) {
+                state.slideAnswered = true;
+                state.slideBlocked = false;
+                const hint3 = document.getElementById('q-tap-hint');
+                if (hint3) hint3.style.display = 'block';
+            }
         });
     });
     // Flat cards (decision)
