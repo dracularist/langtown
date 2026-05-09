@@ -1053,13 +1053,12 @@ body {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 10;
 }
 .unit-overlays > * {
     pointer-events: auto;
 }
 
-/* Tap layer covers entire screen - MUST be above overlays */
+/* Tap layer covers entire screen - ABOVE overlays to catch all taps */
 .unit-tap-layer {
     position: absolute;
     top: 0;
