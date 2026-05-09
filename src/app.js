@@ -126,10 +126,42 @@ let state = {
     currentBuilding: null,
     progress: {},
     courseData: {},
-    // Unit renderer state
     unitData: null,
     currentSlide: 0,
+    // Unit sub-node list state
+    unitListBuilding: null,
+    unitListUnitIndex: null,
+    // Fine-grained progress (quiz results, wrong answers, etc.)
+    quizResults: {},  // { quizId: { correct, attempts, lastAnswer } }
 };
+
+// Unit sub-node definitions for Accommodation Unit 1
+const UNIT1_SUBNODES = [
+    {
+        id: 'u1-act1', title: 'Act 1: Arrival',
+        desc: 'Station → Email → First steps',
+        emoji: '🚂',
+        slideStart: 0,  // index 0-3 (slides 1-4)
+        slideEnd: 3,
+        type: 'Story'
+    },
+    {
+        id: 'u1-act2', title: 'Act 2: The Search',
+        desc: 'Browse listings → Vocabulary → Make a choice',
+        emoji: '🔍',
+        slideStart: 4,  // index 4-9 (slides 5-10)
+        slideEnd: 9,
+        type: 'Story + Practice'
+    },
+    {
+        id: 'u1-act3-4', title: 'Act 3-4: The Call & Nightfall',
+        desc: 'Phone call → Rejected → Survive day one',
+        emoji: '📞',
+        slideStart: 10,  // index 10-19 (slides 11-20)
+        slideEnd: 19,
+        type: 'Story + Resolution'
+    },
+];
 
 // ========== DOM REFS ==========
 const $ = (sel) => document.querySelector(sel);
@@ -288,7 +320,7 @@ function renderBuildingDetail(id) {
         unitEl.innerHTML = `<div class="unit-header"><span class="unit-label">${unit.unit}</span><span class="unit-progress">${progress}/${unit.items.length}</span></div><div class="course-items">${unit.items.map((item, i) => renderCourseItem(item, i)).join('')}</div>`;
         list.appendChild(unitEl);
     });
-    $$('.course-item').forEach(el => { el.addEventListener('click', () => { const itemId = el.dataset.id; const item = findCourseItem(id, itemId); if (item && (item.status === 'current' || item.status === 'completed')) { launchUnit(id, ui); } }); });
+    $$('.course-item').forEach(el => { el.addEventListener('click', () => { const itemId = el.dataset.id; const item = findCourseItem(id, itemId); if (item && (item.status === 'current' || item.status === 'completed')) { showUnitList(id, ui); } }); });
 }
 
 function findCourseItem(buildingId, itemId) {
@@ -304,6 +336,62 @@ function renderCourseItem(item) {
 }
 
 // ========== UNIT RENDERER ==========
+function showUnitList(buildingId, unitIndex) {
+    if (buildingId !== 'accommodation') { alert('Unit content coming soon!'); return; }
+    state.unitListBuilding = buildingId;
+    state.unitListUnitIndex = unitIndex;
+
+    const building = BUILDINGS.find(b => b.id === buildingId);
+    const courses = state.courseData[buildingId];
+    const unit = courses ? courses[unitIndex] : null;
+
+    $('#unit-list-title').textContent = unit ? unit.unit : 'Unit ' + (unitIndex + 1);
+    $('#unit-list-subtitle').textContent = building ? building.name : '';
+    const bgColors = { neighbourhood: '#FFE0B2', cafe: '#D7CCC8', accommodation: '#B3E5FC', station: '#C8E6C9', campus: '#FFF9C4', hospital: '#F8BBD0', admin: '#E1BEE7', office: '#B2DFDB' };
+    $('#unit-list-emoji').style.background = bgColors[buildingId] || '#eee';
+    $('#unit-list-emoji').textContent = building ? building.emoji : '📚';
+
+    // Render sub-nodes
+    const subNodes = buildingId === 'accommodation' && unitIndex === 0 ? UNIT1_SUBNODES : null;
+    const content = $('#unit-list-content');
+    if (!subNodes) {
+        content.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">Unit content coming soon!</div>';
+    } else {
+        let html = '';
+        subNodes.forEach((sn, i) => {
+            // Determine status based on stored progress
+            const subProgress = state.progress._subnodes || {};
+            const snStatus = subProgress[sn.id] || (i === 0 ? 'current' : (i > 0 && subProgress[subNodes[i-1].id] === 'completed' ? 'current' : 'locked'));
+            html += `<div class="unit-subnode ${snStatus}" data-subnode="${sn.id}" data-index="${i}">`;
+            html += `<div class="subnode-icon ${snStatus}">${sn.emoji}</div>`;
+            html += `<div class="subnode-info"><div class="subnode-title">${sn.title}</div><div class="subnode-desc">${sn.desc}</div></div>`;
+            html += `<span class="subnode-badge ${snStatus}">${snStatus === 'completed' ? 'Done' : snStatus === 'current' ? sn.type : 'Locked'}</span>`;
+            html += '</div>';
+        });
+        content.innerHTML = html;
+
+        // Attach click handlers
+        content.querySelectorAll('.unit-subnode').forEach(el => {
+            el.addEventListener('click', function() {
+                const status = this.classList.contains('locked') ? 'locked' : '';
+                if (status !== 'locked') {
+                    launchSubNode(parseInt(this.dataset.index));
+                }
+            });
+        });
+    }
+
+    showScreen('unit-list');
+}
+
+function launchSubNode(subNodeIndex) {
+    state.unitData = UNIT_DATA;
+    const sn = UNIT1_SUBNODES[subNodeIndex];
+    state.currentSlide = sn.slideStart;
+    showScreen('unit');
+    renderSlide(sn.slideStart);
+}
+
 function launchUnit(buildingId, unitIndex) {
     if (buildingId !== 'accommodation') { alert('Unit content coming soon!'); return; }
     state.unitData = UNIT_DATA;
@@ -553,19 +641,33 @@ function renderComplete(slide) {
     slide.vocabSummary.forEach(w => { h += '<span class="unit-vocab-tag">' + w + '</span>'; });
     h += '</div></div>';
     h += '<div class="unit-story-summary-box"><div class="unit-story-summary-label">Story progress</div><div class="unit-story-summary-text">' + slide.storySummary + '</div></div>';
-    h += '<div class="unit-btn-row"><button class="unit-btn-primary" onclick="backToTown()">Back to Town →</button>';
-    h += '<button class="unit-btn-secondary" onclick="renderSlide(0)">Review Unit 1</button></div>';
+    h += '<div class="unit-btn-row"><button class="unit-btn-primary" onclick="backToUnitList()">Back to Unit →</button>';
+    h += '<button class="unit-btn-secondary" onclick="renderSlide(0)">Review</button></div>';
     h += '</div>';
     return h;
 }
 
-function backToTown() {
-    // Mark first accommodation unit as completed
+function backToUnitList() {
+    // Save subnode completion
+    const sn = UNIT1_SUBNODES[state.currentSubNodeIndex || 0];
+    if (sn) {
+        if (!state.progress._subnodes) state.progress._subnodes = {};
+        state.progress._subnodes[sn.id] = 'completed';
+    }
+    // Mark course item as completed
     const courses = state.courseData.accommodation;
     if (courses && courses[0] && courses[0].items[0]) {
         courses[0].items[0].status = 'completed';
         if (courses[0].items[1]) courses[0].items[1].status = 'current';
     }
+    const progress = extractProgress(state.courseData);
+    progress._interests = state.selectedInterests;
+    progress._quizResults = state.quizResults;
+    saveUser(state.username, progress);
+    showUnitList('accommodation', 0);
+}
+
+function backToTown() {
     const progress = extractProgress(state.courseData);
     progress._interests = state.selectedInterests;
     saveUser(state.username, progress);
@@ -580,9 +682,12 @@ function attachSlideHandlers(slide) {
             const box = this.closest('.unit-question-box');
             if (box.querySelector('.unit-feedback.visible')) return;
             const correct = this.dataset.correct === 'true';
+            const allOpts = document.querySelectorAll('.unit-question-box .unit-option');
+            const qIdx = [...allOpts].indexOf(this) % allOpts.length;
             document.querySelectorAll('.unit-question-box .unit-option').forEach(o => o.classList.remove('correct', 'wrong'));
             if (correct) { this.classList.add('correct'); box.querySelector('.unit-feedback').classList.add('visible'); }
             else { this.classList.add('wrong'); setTimeout(() => this.classList.remove('wrong'), 800); }
+            recordQuizResult('q-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
         });
     });
     // Quiz
@@ -591,9 +696,13 @@ function attachSlideHandlers(slide) {
             const q = this.closest('.unit-quiz-q');
             if (q.querySelector('.unit-feedback.visible')) return;
             const correct = this.dataset.correct === 'true';
+            const quizQ = q.closest('.unit-quiz-q');
+            const allQuizOpts = q.querySelectorAll('.unit-option');
+            const qIdx = [...allQuizOpts].indexOf(this) % allQuizOpts.length;
             q.querySelectorAll('.unit-option').forEach(o => o.classList.remove('correct', 'wrong'));
             if (correct) { this.classList.add('correct'); q.querySelector('.unit-feedback').classList.add('visible'); }
             else { this.classList.add('wrong'); setTimeout(() => this.classList.remove('wrong'), 800); }
+            recordQuizResult('quiz-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
         });
     });
     // Flat cards
@@ -613,6 +722,27 @@ function tfAnswer(idx, correctAnswer, chosen) {
     const result = el.querySelector('.unit-tf-result');
     result.textContent = isCorrect ? '✅ Correct!' : '❌ Not quite — the answer is ' + (correctAnswer ? 'True' : 'False');
     result.className = 'unit-tf-result ' + (isCorrect ? 'correct' : 'wrong');
+    // Record fine-grained progress
+    recordQuizResult('tf-' + idx, { correct: isCorrect, chosen, correctAnswer });
+}
+
+function recordQuizResult(quizId, data) {
+    if (!state.quizResults[quizId]) {
+        state.quizResults[quizId] = { attempts: 0, wrongAnswers: [] };
+    }
+    const qr = state.quizResults[quizId];
+    qr.attempts++;
+    qr.lastCorrect = data.correct;
+    if (!data.correct) {
+        qr.wrongAnswers.push(data.chosen);
+    }
+    // Auto-save to cloud periodically
+    if (state.username) {
+        const progress = extractProgress(state.courseData);
+        progress._interests = state.selectedInterests;
+        progress._quizResults = state.quizResults;
+        saveUser(state.username, progress);
+    }
 }
 
 // ========== LOGOUT ==========
@@ -650,6 +780,7 @@ function init() {
     });
 
     $('#btn-back').addEventListener('click', () => { showScreen('town'); });
+    $('#btn-unit-list-back').addEventListener('click', () => { showScreen('building'); renderBuildingDetail(state.currentBuilding); });
     $('#btn-logout').addEventListener('click', handleLogout);
 
     if (state.username) $('#town-username').textContent = state.username;
