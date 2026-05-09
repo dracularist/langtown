@@ -410,7 +410,7 @@ function renderSlide(idx) {
     state.slideAnswered = false;
     state.slideBlocked = false;
     const slide = state.unitData.slides[idx];
-    const scene = state.unitData.scenes[slide.scene] || {};
+    const scene = state.unitData.slides[idx] ? (state.unitData.scenes[state.unitData.slides[idx].scene] || {}) : {};
     const el = $('#unit-content');
     let html = '';
 
@@ -420,11 +420,14 @@ function renderSlide(idx) {
 
     if (isComplete) { html += renderComplete(slide); }
     else {
-        // Tap overlay
-        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap()"></div>';
-        html += '<div class="unit-scene sky-' + (scene.sky || 'dark') + '">';
-        html += renderSceneElements(slide, scene);
+        const sc = state.unitData.scenes[slide.scene] || {};
+        html += '<div class="unit-scene sky-' + (sc.sky || 'dark') + '">';
+        html += renderSceneBackground(slide, sc);
         html += '</div>';
+        html += '<div class="unit-overlays">';
+        html += renderOverlays(slide);
+        html += '</div>';
+        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap()"></div>';
         html += '<div class="unit-text-area" onclick="handleSlideTap()">';
         html += renderSlideContent(slide, isQuestion, isDecision);
         html += '</div>';
@@ -465,7 +468,7 @@ function advanceSlide() {
     if (next < state.unitData.slides.length) renderSlide(next);
 }
 
-function renderSceneElements(slide, scene) {
+function renderSceneBackground(slide, scene) {
     let h = '';
     if (scene.sky === 'night') h += '<div class="unit-star"></div>';
     if (scene.sky === 'dusk') { h += '<div class="unit-star"></div><div class="unit-moon"></div>'; }
@@ -495,6 +498,12 @@ function renderSceneElements(slide, scene) {
         h += '<div class="unit-cafe-win ucw2"><div class="unit-interior-table"></div><div class="unit-interior-person" style="background:#4a6a4a;left:10px;bottom:20px;"></div></div>';
         h += '<div class="unit-cafe-door"></div></div>';
     }
+
+    return h;
+}
+
+function renderOverlays(slide) {
+    let h = '';
 
     // Phone
     if (slide.phone) {
@@ -577,6 +586,9 @@ function renderSceneElements(slide, scene) {
 
     return h;
 }
+
+// Kept for backwards compat — redirects to split functions
+function renderSceneElements(slide, scene) { return renderSceneBackground(slide, scene) + renderOverlays(slide); }
 
 function highlightKeywords(desc, keywords) {
     if (!keywords) return desc;

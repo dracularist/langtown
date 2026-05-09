@@ -1043,6 +1043,9 @@ body {
     width: 100%;
     height: calc(100% - 60px);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 .unit-nav {
@@ -1098,7 +1101,10 @@ body {
 }
 
 /* Slide scene styles */
-.unit-scene { width: 100%; height: 450px; position: relative; }
+.unit-scene { width: 100%; height: 30vh; min-height: 150px; max-height: 260px; position: relative; flex-shrink: 0; }
+/* Overlays wrapper - absolutely positioned to cover full unit-content */
+.unit-overlays { position: absolute; inset: 0; pointer-events: none; z-index: 100; }
+.unit-overlays > * { pointer-events: auto; }
 .sky-dusk { background: linear-gradient(180deg, #2d1b69 0%, #4a2c8a 20%, #7b4f6e 40%, #c47451 55%, #e8a87c 65%); }
 .sky-day { background: linear-gradient(180deg, #87CEEB 0%, #b6e8ff 50%, #e8f5e9 100%); }
 .sky-night { background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 30%, #2a3a4a 50%); }
@@ -1122,10 +1128,10 @@ body {
 .unit-ground { position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: #3a3a3a; border-top: 3px solid #555; }
 .unit-pavement { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: #4a4a5a; border-top: 3px solid #666; }
 
-.unit-building { position: absolute; bottom: 80px; left: 20px; right: 20px; height: 250px; background: linear-gradient(180deg, #8b7355 0%, #7b6345 100%); border: 2px solid #5b4325; }
+.unit-building { position: absolute; bottom: 80px; left: 20px; right: 20px; height: 175px; background: linear-gradient(180deg, #8b7355 0%, #7b6345 100%); border: 2px solid #5b4325; }
 .unit-bldg-win { position: absolute; width: 24px; height: 28px; background: #c8e8ff; border: 1px solid #5b4325; }
 
-.unit-cafe { position: absolute; bottom: 80px; left: 15px; right: 15px; height: 220px; background: #8b6914; border: 2px solid #6b4f10; }
+.unit-cafe { position: absolute; bottom: 80px; left: 15px; right: 15px; height: 175px; background: #8b6914; border: 2px solid #6b4f10; }
 .unit-cafe-awning { position: absolute; top: -12px; left: -5px; right: -5px; height: 22px; background: repeating-linear-gradient(90deg, #c44, #c44 15px, #fff 15px, #fff 30px); clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%); }
 .unit-cafe-sign { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); background: #2a1a0a; color: #ffd699; font-size: 8px; font-weight: 900; padding: 6px 16px; border: 1px solid #ffd699; letter-spacing: 2px; }
 .unit-cafe-win { position: absolute; width: 70px; height: 80px; background: #ffd699; border: 2px solid #6b4f10; box-shadow: 0 0 30px rgba(255,214,153,0.4); }
@@ -1243,7 +1249,7 @@ body {
 .unit-preview-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
 
 /* Text area */
-.unit-text-area { height: 362px; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; }
+.unit-text-area { flex: 1; min-height: 0; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; }
 .unit-narrator { color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 10px; }
 .unit-narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
 .unit-dialogue-box { background: #2a2a4a; border: 1px solid #3a3a6a; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
@@ -1337,7 +1343,9 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 450px;
+    height: 30vh;
+    min-height: 150px;
+    max-height: 260px;
     z-index: 50;
     cursor: pointer;
 }
