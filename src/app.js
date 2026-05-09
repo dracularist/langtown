@@ -320,7 +320,7 @@ function renderBuildingDetail(id) {
         unitEl.innerHTML = `<div class="unit-header"><span class="unit-label">${unit.unit}</span><span class="unit-progress">${progress}/${unit.items.length}</span></div><div class="course-items">${unit.items.map((item, i) => renderCourseItem(item, i)).join('')}</div>`;
         list.appendChild(unitEl);
     });
-    $$('.course-item').forEach(el => { el.addEventListener('click', () => { const itemId = el.dataset.id; const item = findCourseItem(id, itemId); if (item && (item.status === 'current' || item.status === 'completed')) { showUnitList(id, ui); } }); });
+    $$('.course-item').forEach(el => { el.addEventListener('click', () => { const itemId = el.dataset.id; const item = findCourseItem(id, itemId); if (item && (item.status === 'current' || item.status === 'completed')) { const courses = state.courseData[id]; let uIdx = 0; courses.forEach((u, i) => { if (u.items.some(it => it.id === itemId)) uIdx = i; }); showUnitList(id, uIdx); } }); });
 }
 
 function findCourseItem(buildingId, itemId) {
