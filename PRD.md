@@ -188,3 +188,5 @@ slides/
 | 2026-05-08 | 确定 Slide 表现层：CSS 像素风格场景 + Nunito 高清字体 |
 | 2026-05-08 | 建立数据驱动 Slide 系统：JSON 数据 + 渲染器 + 独立预览 |
 | 2026-05-08 | 建立版本号规范 + CHANGELOG.md + SETUP.md 开发指南 |
+| 2026-05-09 | Slide 渲染器集成进 SPA，Unit 1 完整 20 张 slide 体验，Tap-to-advance 交互 |
+| 2026-05-09 | 修复 Slide 布局溢出：场景高度缩小至 30vh，覆盖层分离独立容器 |
