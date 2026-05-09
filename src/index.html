@@ -214,6 +214,24 @@
         </div>
     </div>
 
+    <!-- Screen 4: Unit Experience (Slide Renderer) -->
+    <div id="screen-unit" class="screen">
+        <div id="unit-content">
+            <!-- Dynamically rendered slides -->
+        </div>
+        <div class="unit-nav">
+            <button class="unit-nav-btn" id="unit-prev-btn" onclick="unitNav(-1)">
+                <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            </button>
+            <div class="unit-progress-bar">
+                <div class="unit-progress-fill" id="unit-progress-fill"></div>
+            </div>
+            <button class="unit-nav-btn" id="unit-next-btn" onclick="unitNav(1)">
+                <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            </button>
+        </div>
+    </div>
+
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="app.js"></script>
