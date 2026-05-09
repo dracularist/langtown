@@ -1048,7 +1048,7 @@ body {
     position: relative;
 }
 
-/* Overlays wrapper - full screen but transparent to clicks */
+/* Overlays wrapper - full screen but transparent to clicks, NO z-index to avoid stacking context */
 .unit-overlays {
     position: absolute;
     inset: 0;
@@ -1058,14 +1058,14 @@ body {
     pointer-events: auto;
 }
 
-/* Tap layer covers entire screen - ABOVE overlays to catch all taps */
+/* Tap layer covers entire screen - below overlays in DOM order */
 .unit-tap-layer {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 100;
+    z-index: 10;
     cursor: pointer;
 }
 
