@@ -49,18 +49,18 @@ const DEFAULT_COURSES = {
         ]},
     ],
     accommodation: [
-        { unit: 'Unit 1 — Finding a Place', items: [
-            { id: 'a1', title: 'Reading rental listings', desc: '2-bed flat, all bills included', emoji: '📰', status: 'current' },
-            { id: 'a2', title: 'Booking a viewing', desc: "I'd like to see the property", emoji: '📞', status: 'locked' },
-            { id: 'a3', title: 'Asking the right questions', desc: "What's the deposit?", emoji: '❓', status: 'locked' },
+        { unit: 'Act 1 — Two Suitcases, Nowhere to Sleep', items: [
+            { id: 'a1', title: 'The Email That Changed Everything', desc: 'Your room was cancelled', emoji: '📧', status: 'current' },
+            { id: 'a2', title: 'Decoding the Rental Ads', desc: 'What do those words mean?', emoji: '🔍', status: 'locked' },
+            { id: 'a3', title: 'The Phone Call', desc: 'Deposit, PCM… and a wall', emoji: '📞', status: 'locked' },
         ]},
-        { unit: 'Unit 2 — Contracts & Moving In', items: [
-            { id: 'a4', title: 'Understanding the contract', desc: 'Is this a fixed-term tenancy?', emoji: '📄', status: 'locked' },
-            { id: 'a5', title: 'Talking to your landlord', desc: "The heating isn't working", emoji: '🔧', status: 'locked' },
+        { unit: 'Act 2 — The View That Wasn\'t What It Seemed', items: [
+            { id: 'a4', title: 'The Window Facing the Wall', desc: 'The photos lied', emoji: '🖼️', status: 'locked' },
+            { id: 'a5', title: 'Reading Between the Lines', desc: 'The contract arrives', emoji: '📄', status: 'locked' },
         ]},
-        { unit: 'Unit 3 — Flatmate Life', items: [
-            { id: 'a6', title: 'Setting house rules', desc: "Whose turn is it to clean?", emoji: '🧹', status: 'locked' },
-            { id: 'a7', title: 'Splitting bills', desc: 'Can you Venmo me for the electric?', emoji: '💸', status: 'locked' },
+        { unit: 'Act 3 — Flatmate Life', items: [
+            { id: 'a6', title: 'Sam\'s Midnight Experiments', desc: 'Whose turn is it to clean?', emoji: '🧹', status: 'locked' },
+            { id: 'a7', title: 'The Leak', desc: 'Tuesday has come and gone', emoji: '💧', status: 'locked' },
         ]},
     ],
     station: [
@@ -138,24 +138,24 @@ let state = {
 // Unit sub-node definitions for Accommodation Unit 1
 const UNIT1_SUBNODES = [
     {
-        id: 'u1-act1', title: 'Act 1: Arrival',
-        desc: 'Station → Email → First steps',
-        emoji: '🚂',
+        id: 'u1-act1', title: 'The Email That Changed Everything',
+        desc: 'Station → Cancelled → First steps',
+        emoji: '📧',
         slideStart: 0,  // index 0-3 (slides 1-4)
         slideEnd: 3,
         type: 'Story'
     },
     {
-        id: 'u1-act2', title: 'Act 2: The Search',
-        desc: 'Browse listings → Vocabulary → Make a choice',
+        id: 'u1-act2', title: 'Decoding the Rental Ads',
+        desc: 'Browse listings → Learn the words → Make a choice',
         emoji: '🔍',
         slideStart: 4,  // index 4-9 (slides 5-10)
         slideEnd: 9,
         type: 'Story + Practice'
     },
     {
-        id: 'u1-act3-4', title: 'Act 3-4: The Call & Nightfall',
-        desc: 'Phone call → Rejected → Survive day one',
+        id: 'u1-act3-4', title: 'The Phone Call & Nightfall',
+        desc: 'Deposit talk → Rejected → Survive day one',
         emoji: '📞',
         slideStart: 10,  // index 10-19 (slides 11-20)
         slideEnd: 19,
@@ -407,35 +407,53 @@ function unitNav(dir) {
 
 function renderSlide(idx) {
     state.currentSlide = idx;
+    state.slideAnswered = false;
+    state.slideBlocked = false;
     const slide = state.unitData.slides[idx];
     const scene = state.unitData.scenes[slide.scene] || {};
     const el = $('#unit-content');
     let html = '';
 
-    if (slide.type === 'complete') { html += renderComplete(slide); }
+    const isQuestion = slide.question || slide.quiz || slide.quizTF;
+    const isComplete = slide.type === 'complete';
+
+    if (isComplete) { html += renderComplete(slide); }
     else {
+        // Tap-to-advance overlay for story slides
+        if (!isQuestion) {
+            html += '<div class="unit-tap-layer" onclick="advanceSlide()"></div>';
+        }
         html += '<div class="unit-scene sky-' + (scene.sky || 'dark') + '">';
         html += renderSceneElements(slide, scene);
         html += '</div>';
         html += '<div class="unit-text-area">';
-        html += renderSlideContent(slide);
+        html += renderSlideContent(slide, isQuestion);
         html += '</div>';
     }
 
     el.innerHTML = html;
 
-    // Update progress bar
+    // Progress bar
     const pct = ((idx + 1) / state.unitData.slides.length) * 100;
     const fill = $('#unit-progress-fill');
     if (fill) fill.style.width = pct + '%';
 
-    // Nav buttons
+    // Show/hide nav arrows (hidden on story slides, visible on questions)
     const prevBtn = $('#unit-prev-btn');
     const nextBtn = $('#unit-next-btn');
-    if (prevBtn) prevBtn.disabled = idx === 0;
-    if (nextBtn) nextBtn.disabled = idx === state.unitData.slides.length - 1;
+    if (prevBtn) prevBtn.style.display = isQuestion || isComplete ? 'flex' : 'none';
+    if (nextBtn) {
+        nextBtn.style.display = isQuestion || isComplete ? 'flex' : 'none';
+        nextBtn.disabled = idx === state.unitData.slides.length - 1;
+    }
 
-    attachSlideHandlers(slide);
+    attachSlideHandlers(slide, isQuestion);
+}
+
+function advanceSlide() {
+    if (state.slideBlocked) return;
+    const next = state.currentSlide + 1;
+    if (next < state.unitData.slides.length) renderSlide(next);
 }
 
 function renderSceneElements(slide, scene) {
@@ -558,7 +576,7 @@ function highlightKeywords(desc, keywords) {
     return result;
 }
 
-function renderSlideContent(slide) {
+function renderSlideContent(slide, isQuestion) {
     const c = slide.content;
     let h = '';
 
@@ -623,6 +641,11 @@ function renderSlideContent(slide) {
         h += '<button class="unit-btn-primary" onclick="alert(\'Unit 2 coming soon!\')">Continue to Unit 2 →</button>';
     }
 
+    // "Tap anywhere" hint for story slides
+    if (!isQuestion && slide.type !== 'complete' && slide.type !== 'decision') {
+        h += '<div class="unit-tap-hint">Tap anywhere to continue</div>';
+    }
+
     return h;
 }
 
@@ -675,7 +698,7 @@ function backToTown() {
     showScreen('town');
 }
 
-function attachSlideHandlers(slide) {
+function attachSlideHandlers(slide, isQuestion) {
     // Single question
     document.querySelectorAll('.unit-question-box .unit-option').forEach(opt => {
         opt.addEventListener('click', function() {
@@ -684,10 +707,18 @@ function attachSlideHandlers(slide) {
             const correct = this.dataset.correct === 'true';
             const allOpts = document.querySelectorAll('.unit-question-box .unit-option');
             const qIdx = [...allOpts].indexOf(this) % allOpts.length;
-            document.querySelectorAll('.unit-question-box .unit-option').forEach(o => o.classList.remove('correct', 'wrong'));
-            if (correct) { this.classList.add('correct'); box.querySelector('.unit-feedback').classList.add('visible'); }
-            else { this.classList.add('wrong'); setTimeout(() => this.classList.remove('wrong'), 800); }
+            // Show correct answer even on wrong choice
+            allOpts.forEach(o => {
+                if (o.dataset.correct === 'true') o.classList.add('correct');
+            });
+            if (correct) { this.classList.add('correct'); }
+            else { this.classList.add('wrong'); }
+            box.querySelector('.unit-feedback').classList.add('visible');
             recordQuizResult('q-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
+            state.slideAnswered = true;
+            state.slideBlocked = false;
+            // Show tap hint now that question is answered
+            showTapHint();
         });
     });
     // Quiz
@@ -696,22 +727,40 @@ function attachSlideHandlers(slide) {
             const q = this.closest('.unit-quiz-q');
             if (q.querySelector('.unit-feedback.visible')) return;
             const correct = this.dataset.correct === 'true';
-            const quizQ = q.closest('.unit-quiz-q');
             const allQuizOpts = q.querySelectorAll('.unit-option');
             const qIdx = [...allQuizOpts].indexOf(this) % allQuizOpts.length;
-            q.querySelectorAll('.unit-option').forEach(o => o.classList.remove('correct', 'wrong'));
-            if (correct) { this.classList.add('correct'); q.querySelector('.unit-feedback').classList.add('visible'); }
-            else { this.classList.add('wrong'); setTimeout(() => this.classList.remove('wrong'), 800); }
+            // Show correct answer
+            allQuizOpts.forEach(o => {
+                if (o.dataset.correct === 'true') o.classList.add('correct');
+            });
+            if (correct) { this.classList.add('correct'); }
+            else { this.classList.add('wrong'); }
+            q.querySelector('.unit-feedback').classList.add('visible');
             recordQuizResult('quiz-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
+            state.slideAnswered = true;
+            state.slideBlocked = false;
+            showTapHint();
         });
     });
-    // Flat cards
+    // Flat cards (decision)
     document.querySelectorAll('.unit-flat-card').forEach(card => {
         card.addEventListener('click', function() {
             document.querySelectorAll('.unit-flat-card').forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
         });
     });
+
+    // For question slides, block tap-to-advance until answered
+    if (isQuestion) {
+        state.slideBlocked = true;
+        const tapLayer = $('.unit-tap-layer');
+        if (tapLayer) tapLayer.style.display = 'none';
+    }
+}
+
+function showTapHint() {
+    const tapLayer = $('.unit-tap-layer');
+    if (tapLayer) tapLayer.style.display = 'block';
 }
 
 function tfAnswer(idx, correctAnswer, chosen) {
