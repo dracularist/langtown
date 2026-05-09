@@ -416,18 +416,17 @@ function renderSlide(idx) {
 
     const isQuestion = slide.question || slide.quiz || slide.quizTF;
     const isComplete = slide.type === 'complete';
+    const isDecision = slide.type === 'decision' && slide.decisions;
 
     if (isComplete) { html += renderComplete(slide); }
     else {
-        // Tap-to-advance overlay for story slides
-        if (!isQuestion) {
-            html += '<div class="unit-tap-layer" onclick="advanceSlide()"></div>';
-        }
+        // Tap overlay
+        html += '<div class="unit-tap-layer" id="unit-tap-layer" onclick="handleSlideTap()"></div>';
         html += '<div class="unit-scene sky-' + (scene.sky || 'dark') + '">';
         html += renderSceneElements(slide, scene);
         html += '</div>';
-        html += '<div class="unit-text-area">';
-        html += renderSlideContent(slide, isQuestion);
+        html += '<div class="unit-text-area" onclick="handleSlideTap()">';
+        html += renderSlideContent(slide, isQuestion, isDecision);
         html += '</div>';
     }
 
@@ -438,17 +437,27 @@ function renderSlide(idx) {
     const fill = $('#unit-progress-fill');
     if (fill) fill.style.width = pct + '%';
 
-    // Show/hide nav arrows (hidden on story slides, visible on questions)
+    // Hide nav arrows during slides, show only for tap hint
     const prevBtn = $('#unit-prev-btn');
     const nextBtn = $('#unit-next-btn');
-    if (prevBtn) prevBtn.style.display = isQuestion || isComplete ? 'flex' : 'none';
-    if (nextBtn) {
-        nextBtn.style.display = isQuestion || isComplete ? 'flex' : 'none';
-        nextBtn.disabled = idx === state.unitData.slides.length - 1;
-    }
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
 
+    applyReveal(slide, isQuestion, isDecision);
     attachSlideHandlers(slide, isQuestion);
 }
+
+function handleSlideTap(e) {
+    if (e) e.stopPropagation();
+    if (state.slideBlocked) return;
+    const slide = state.unitData.slides[state.currentSlide];
+    const isQuestion = slide.question || slide.quiz || slide.quizTF;
+    if (isQuestion && !state.slideAnswered) return;
+    advanceSlide();
+}
+
+function applyReveal(slide, isQuestion, isDecision) { /* no-op in simple mode */ }
+function collectRevealSegments(slide, isQuestion, isDecision) { return []; }
 
 function advanceSlide() {
     if (state.slideBlocked) return;
@@ -646,6 +655,11 @@ function renderSlideContent(slide, isQuestion) {
         h += '<div class="unit-tap-hint">Tap anywhere to continue</div>';
     }
 
+    // On question slides, show "Tap to continue after answering" hint
+    if (isQuestion) {
+        h += '<div class="unit-tap-hint" id="q-tap-hint" style="display:none;">Tap anywhere to continue</div>';
+    }
+
     return h;
 }
 
@@ -705,9 +719,9 @@ function attachSlideHandlers(slide, isQuestion) {
             const box = this.closest('.unit-question-box');
             if (box.querySelector('.unit-feedback.visible')) return;
             const correct = this.dataset.correct === 'true';
-            const allOpts = document.querySelectorAll('.unit-question-box .unit-option');
+            const allOpts = box.querySelectorAll('.unit-option');
             const qIdx = [...allOpts].indexOf(this) % allOpts.length;
-            // Show correct answer even on wrong choice
+            // Always show correct answer
             allOpts.forEach(o => {
                 if (o.dataset.correct === 'true') o.classList.add('correct');
             });
@@ -717,8 +731,8 @@ function attachSlideHandlers(slide, isQuestion) {
             recordQuizResult('q-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
             state.slideAnswered = true;
             state.slideBlocked = false;
-            // Show tap hint now that question is answered
-            showTapHint();
+            const hint = document.getElementById('q-tap-hint');
+            if (hint) hint.style.display = 'block';
         });
     });
     // Quiz
@@ -729,7 +743,7 @@ function attachSlideHandlers(slide, isQuestion) {
             const correct = this.dataset.correct === 'true';
             const allQuizOpts = q.querySelectorAll('.unit-option');
             const qIdx = [...allQuizOpts].indexOf(this) % allQuizOpts.length;
-            // Show correct answer
+            // Always show correct answer
             allQuizOpts.forEach(o => {
                 if (o.dataset.correct === 'true') o.classList.add('correct');
             });
@@ -739,7 +753,28 @@ function attachSlideHandlers(slide, isQuestion) {
             recordQuizResult('quiz-' + state.currentSlide + '-' + qIdx, { correct, chosen: this.querySelector('.unit-option-letter').textContent });
             state.slideAnswered = true;
             state.slideBlocked = false;
-            showTapHint();
+            const hint2 = document.getElementById('q-tap-hint');
+            if (hint2) hint2.style.display = 'block';
+        });
+    });
+    // True/False
+    document.querySelectorAll('.unit-tf-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tfItem = this.closest('.unit-tf-item');
+            if (tfItem.classList.contains('done')) return;
+            tfItem.classList.add('done');
+            const idx = [...document.querySelectorAll('.unit-tf-item')].indexOf(tfItem);
+            const slideData = state.unitData.slides[state.currentSlide];
+            const q = slideData.quizTF[idx];
+            const isCorrect = (this.classList.contains('true-btn') && q.answer === true) || (this.classList.contains('false-btn') && q.answer === false);
+            const result = tfItem.querySelector('.unit-tf-result');
+            result.textContent = isCorrect ? '✅ Correct!' : '❌ Not quite — the answer is ' + (q.answer ? 'True' : 'False');
+            result.className = 'unit-tf-result ' + (isCorrect ? 'correct' : 'wrong');
+            recordQuizResult('tf-' + state.currentSlide + '-' + idx, { correct: isCorrect, chosen: this.classList.contains('true-btn') ? 'True' : 'False' });
+            state.slideAnswered = true;
+            state.slideBlocked = false;
+            const hint3 = document.getElementById('q-tap-hint');
+            if (hint3) hint3.style.display = 'block';
         });
     });
     // Flat cards (decision)
@@ -753,14 +788,7 @@ function attachSlideHandlers(slide, isQuestion) {
     // For question slides, block tap-to-advance until answered
     if (isQuestion) {
         state.slideBlocked = true;
-        const tapLayer = $('.unit-tap-layer');
-        if (tapLayer) tapLayer.style.display = 'none';
     }
-}
-
-function showTapHint() {
-    const tapLayer = $('.unit-tap-layer');
-    if (tapLayer) tapLayer.style.display = 'block';
 }
 
 function tfAnswer(idx, correctAnswer, chosen) {

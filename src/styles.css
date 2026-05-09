@@ -1243,7 +1243,7 @@ body {
 .unit-preview-card-desc { font-size: 10px; color: #a8a8c8; line-height: 1.5; }
 
 /* Text area */
-.unit-text-area { height: 362px; background: #1a1a2e; padding: 28px 24px 30px; display: flex; flex-direction: column; overflow-y: auto; }
+.unit-text-area { height: 362px; background: #1a1a2e; padding: 24px 20px 30px; display: flex; flex-direction: column; overflow-y: auto; }
 .unit-narrator { color: #e8d5b5; font-size: 15px; font-weight: 700; line-height: 1.8; margin-bottom: 10px; }
 .unit-narrator em { color: #ffd699; font-style: normal; font-weight: 800; }
 .unit-dialogue-box { background: #2a2a4a; border: 1px solid #3a3a6a; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
@@ -1333,8 +1333,11 @@ body {
 
 /* Tap to advance */
 .unit-tap-layer {
-    position: fixed;
-    inset: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 450px;
     z-index: 50;
     cursor: pointer;
 }
@@ -1355,9 +1358,13 @@ body {
 }
 
 /* Show correct answer even when wrong */
-.unit-option.correct.show-correct {
+.unit-option.correct {
     border-color: var(--green);
     background: var(--green-light);
+}
+.unit-option.wrong {
+    border-color: var(--red);
+    background: #2a1a1a;
 }
 
 /* ========== RESPONSIVE ========== */
