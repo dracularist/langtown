@@ -308,8 +308,8 @@ function renderBuildingDetail(id) {
     const building = BUILDINGS.find(b => b.id === id);
     const courses = state.courseData[id] || [];
     const bgColors = { neighbourhood: '#FFE0B2', cafe: '#D7CCC8', accommodation: '#B3E5FC', station: '#C8E6C9', campus: '#FFF9C4', hospital: '#F8BBD0', admin: '#E1BEE7', office: '#B2DFDB' };
-    $('#building-header-icon').style.background = bgColors[id] || '#eee';
-    $('#building-header-icon').textContent = building.emoji;
+    $('#building-icon').style.background = bgColors[id] || '#eee';
+    $('#building-icon').textContent = building.emoji;
     $('#building-title').textContent = building.name;
     $('#building-subtitle').textContent = building.keywords;
 
