@@ -486,34 +486,30 @@ function handleSlideTap(e) {
     // If question slide and not answered yet, block
     if (isQuestion && !state.slideAnswered) return;
 
-    // If there are more elements to reveal, reveal the next one
+    // If there are more elements to reveal, reveal the current one
     if (state.revealIndex < state.totalRevealSteps - 1) {
+        const ri = state.revealIndex;
+        // Show overlays with this reveal index
+        document.querySelectorAll('.overlay-step.hidden-overlay[data-reveal="' + ri + '"]').forEach(el => {
+            el.classList.add('revealed');
+            el.classList.remove('hidden-overlay');
+        });
+        // Show text area if this is the text reveal step
+        if (state.revealIndex === state.totalRevealSteps - 2) {
+            const textArea = $('#unit-text-area');
+            if (textArea) {
+                textArea.classList.add('revealed');
+                textArea.classList.remove('hidden-overlay');
+            }
+            const qHint = document.getElementById('q-tap-hint');
+            if (qHint) qHint.style.display = 'block';
+        }
         state.revealIndex++;
-        revealNextElement();
         return;
     }
 
     // All revealed, advance to next slide
     advanceSlide();
-}
-
-function revealNextElement() {
-    // Show overlays with this reveal index
-    document.querySelectorAll('.overlay-step.hidden-overlay[data-reveal="' + state.revealIndex + '"]').forEach(el => {
-        el.classList.add('revealed');
-        el.classList.remove('hidden-overlay');
-    });
-    // Show text area if this is the text reveal step
-    if (state.revealIndex === state.totalRevealSteps - 1) {
-        const textArea = $('#unit-text-area');
-        if (textArea) {
-            textArea.classList.add('revealed');
-            textArea.classList.remove('hidden-overlay');
-        }
-        // Show tap hint for question slides
-        const qHint = document.getElementById('q-tap-hint');
-        if (qHint) qHint.style.display = 'block';
-    }
 }
 
 function applyReveal(slide, isQuestion, isDecision) { /* no-op in simple mode */ }
@@ -563,41 +559,36 @@ function renderOverlays(slide) {
     let h = '';
     let ri = 0;
 
-    // Phone
+    // Phone — ALWAYS visible (not part of reveal sequence)
     if (slide.phone) {
         const p = slide.phone;
-        let inner = '';
         if (p.isWebsite) {
-            inner += '<div class="unit-phone wide website"><div class="unit-phone-notch"></div>';
-            inner += '<div class="unit-phone-status"><span>10%</span><span>18:50</span><div class="unit-phone-battery"></div></div>';
-            inner += '<div class="unit-browser-bar"><div class="unit-browser-url">' + (p.url || '') + '</div></div>';
-            if (p.header) inner += '<div class="unit-web-header">' + p.header + '</div>';
-            if (p.filters) { inner += '<div style="padding:4px 6px;display:flex;gap:3px;">'; p.filters.forEach((f, i) => { inner += '<div style="font-size:5px;font-weight:700;padding:3px 6px;border-radius:3px;background:' + (i === 0 ? '#2a5a8c;color:#fff;' : '#e8e8e8;color:#555;') + '">' + f + '</div>'; }); inner += '</div>'; }
-            if (p.listings) { inner += '<div style="padding:4px 6px;">'; p.listings.forEach(l => { inner += '<div class="unit-listing-card">'; if (l.icon) inner += '<div class="unit-listing-icon">' + l.icon + '</div>'; inner += '<div class="unit-listing-price">' + l.price + '</div><div class="unit-listing-desc">' + highlightKeywords(l.desc, l.keywords) + '</div></div>'; }); inner += '</div>'; }
-            inner += '<div class="unit-phone-home-el"></div></div>';
+            h += '<div class="unit-phone wide website"><div class="unit-phone-notch"></div>';
+            h += '<div class="unit-phone-status"><span>10%</span><span>18:50</span><div class="unit-phone-battery"></div></div>';
+            h += '<div class="unit-browser-bar"><div class="unit-browser-url">' + (p.url || '') + '</div></div>';
+            if (p.header) h += '<div class="unit-web-header">' + p.header + '</div>';
+            if (p.filters) { h += '<div style="padding:4px 6px;display:flex;gap:3px;">'; p.filters.forEach((f, i) => { h += '<div style="font-size:5px;font-weight:700;padding:3px 6px;border-radius:3px;background:' + (i === 0 ? '#2a5a8c;color:#fff;' : '#e8e8e8;color:#555;') + '">' + f + '</div>'; }); h += '</div>'; }
+            if (p.listings) { h += '<div style="padding:4px 6px;">'; p.listings.forEach(l => { h += '<div class="unit-listing-card">'; if (l.icon) h += '<div class="unit-listing-icon">' + l.icon + '</div>'; h += '<div class="unit-listing-price">' + l.price + '</div><div class="unit-listing-desc">' + highlightKeywords(l.desc, l.keywords) + '</div></div>'; }); h += '</div>'; }
+            h += '<div class="unit-phone-home-el"></div></div>';
         } else {
             const wide = p.messages && p.messages.some(m => m.length > 40);
-            inner += '<div class="unit-phone' + (wide ? ' wide' : '') + '"><div class="unit-phone-notch"></div>';
-            inner += '<div class="unit-phone-status"><span>9%</span><span>18:52</span></div>';
-            inner += '<div class="unit-chat-avatar"><div class="unit-chat-avatar-circle"></div><div class="unit-chat-name">' + p.from + '</div></div>';
-            p.messages.forEach((m, i) => { let cls = 'unit-chat-bubble'; if (p.warn && i >= p.warn - 1) cls += ' warn'; if (p.urgent && i >= p.urgent - 1) cls += ' urgent'; if (p.review) cls += ' review'; inner += '<div class="' + cls + '">' + m + '</div>'; });
-            if (p.review) p.review.forEach(r => { inner += '<div class="unit-chat-bubble review">' + r + '</div>'; });
-            inner += '<div class="unit-phone-home-el"></div></div>';
+            h += '<div class="unit-phone' + (wide ? ' wide' : '') + '"><div class="unit-phone-notch"></div>';
+            h += '<div class="unit-phone-status"><span>9%</span><span>18:52</span></div>';
+            h += '<div class="unit-chat-avatar"><div class="unit-chat-avatar-circle"></div><div class="unit-chat-name">' + p.from + '</div></div>';
+            p.messages.forEach((m, i) => { let cls = 'unit-chat-bubble'; if (p.warn && i >= p.warn - 1) cls += ' warn'; if (p.urgent && i >= p.urgent - 1) cls += ' urgent'; if (p.review) cls += ' review'; h += '<div class="' + cls + '">' + m + '</div>'; });
+            if (p.review) p.review.forEach(r => { h += '<div class="unit-chat-bubble review">' + r + '</div>'; });
+            h += '<div class="unit-phone-home-el"></div></div>';
         }
-        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '">' + inner + '</div>';
-        ri++;
     }
 
-    // Email
+    // Email — ALWAYS visible (not part of reveal sequence)
     if (slide.email) {
         const e = slide.email;
-        let inner = '<div class="unit-email"><div class="unit-email-header"><div class="unit-email-from">From: ' + e.from + '</div><div class="unit-email-subject">Subject: ' + e.subject + '</div></div>';
-        inner += '<div class="unit-email-body">' + (e.highlight ? e.body.replace(e.highlight, '<span class="unit-email-hl">' + e.highlight + '</span>') : e.body) + '</div></div>';
-        h += '<div class="overlay-step hidden-overlay" data-reveal="' + ri + '">' + inner + '</div>';
-        ri++;
+        h += '<div class="unit-email"><div class="unit-email-header"><div class="unit-email-from">From: ' + e.from + '</div><div class="unit-email-subject">Subject: ' + e.subject + '</div></div>';
+        h += '<div class="unit-email-body">' + (e.highlight ? e.body.replace(e.highlight, '<span class="unit-email-hl">' + e.highlight + '</span>') : e.body) + '</div></div>';
     }
 
-    // Call
+    // Call — revealed sequentially
     if (slide.phoneCall) {
         const c = slide.phoneCall;
         let inner = '<div class="unit-call"><div class="unit-phone-notch"></div><div class="unit-call-screen"><div class="unit-call-avatar">📞</div><div class="unit-call-name">' + c.title + '</div><div class="unit-call-status">' + c.duration + '</div>';
