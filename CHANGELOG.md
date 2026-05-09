@@ -7,6 +7,27 @@
 
 ---
 
+## [0.4.0] - 2026-05-09
+
+### 新增
+- **Slide 渲染器集成进 SPA**：点击 Accommodation 建筑的课程节点，进入完整的 20 张 slide 互动体验
+- 数据驱动内容系统：unit1-data.json 存储所有文本/题目/对话，修改只需改 JSON
+- Unit 1 完整体验：20 张 slide，4 幕结构，含故事/测验/决策/回顾
+- 单元内导航：左右箭头切换 slide，顶部进度条
+- 单元完成后自动保存进度到 Supabase，返回小镇地图时节点变绿
+- 独立 slide 预览系统：slides/unit1/slide-XX.html 双击即可打开
+- Slide 目录页（slides/index.html）和渲染器（slides/renderer.html）
+
+### 文档
+- SETUP.md：完整开发环境搭建指南（Git/GitHub/Vercel/Supabase/代理）
+- PRD.md 全面更新：补充 Unit 1 故事设计、Slide 架构、文件结构
+- CHANGELOG.md 更新规范：每次 commit 包含版本变更时同步更新
+
+### 变更
+- 版本号 0.3.0 → 0.4.0（新增 slide 渲染集成）
+
+---
+
 ## [0.3.0] - 2026-05-08
 
 ### 新增
